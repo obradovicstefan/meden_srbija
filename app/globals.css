@@ -1,26 +1,335 @@
 @import "tailwindcss";
 
+/* Dark theme default – aligned with .cursor/rules/meden-rules.mdc */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Hero entrance animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-entrance {
+  animation: fadeInUp 0.7s ease-out forwards;
+}
+
+/* Product hover panel slide-in */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.panel-slide-in {
+  animation: slideInRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.panel-content-in {
+  animation: fadeInRight 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Phase 7 – Scroll reveal (slower, more visible) */
+@keyframes revealFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(56px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(56px);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-visible {
+  animation: revealFadeUp 1.25s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+  .reveal-on-scroll.is-visible {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
+/* About section – image from right, then text staggered */
+.reveal-on-scroll.reveal-about {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+.reveal-on-scroll.reveal-about.is-visible {
+  animation: none;
+}
+
+@keyframes aboutSlideRight {
+  from {
+    opacity: 0;
+    transform: translateX(56px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes aboutFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-about-image {
+  opacity: 0;
+  transform: translateX(56px);
+  will-change: opacity, transform;
+}
+
+.reveal-about-text {
+  opacity: 0;
+  transform: translateY(40px);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.reveal-about.is-visible .reveal-about-image {
+  animation: aboutSlideRight 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.reveal-on-scroll.reveal-about.is-visible .reveal-about-text {
+  animation: aboutFadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-about-image,
+  .reveal-about-text {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+    animation: none;
+  }
+  .reveal-on-scroll.reveal-about.is-visible .reveal-about-image,
+  .reveal-on-scroll.reveal-about.is-visible .reveal-about-text {
+    animation: none;
+  }
+}
+
+/* Timeline block – longer, more noticeable fade-up + staggered children */
+@keyframes timelineFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(48px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-on-scroll.reveal-timeline {
+  opacity: 0;
+  transform: translateY(48px);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.reveal-timeline.is-visible {
+  animation: timelineFadeUp 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.reveal-timeline-title,
+.reveal-timeline-avatars,
+.reveal-timeline-text {
+  opacity: 0;
+  transform: translateY(32px);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.reveal-timeline.is-visible .reveal-timeline-title {
+  animation: timelineFadeUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+}
+
+.reveal-on-scroll.reveal-timeline.is-visible .reveal-timeline-avatars {
+  animation: timelineFadeUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
+}
+
+.reveal-on-scroll.reveal-timeline.is-visible .reveal-timeline-text {
+  animation: timelineFadeUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.75s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll.reveal-timeline {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+  .reveal-on-scroll.reveal-timeline.is-visible {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .reveal-timeline-title,
+  .reveal-timeline-avatars,
+  .reveal-timeline-text {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+    animation: none;
+  }
+  .reveal-on-scroll.reveal-timeline.is-visible .reveal-timeline-title,
+  .reveal-on-scroll.reveal-timeline.is-visible .reveal-timeline-avatars,
+  .reveal-on-scroll.reveal-timeline.is-visible .reveal-timeline-text {
+    animation: none;
+  }
+}
+
+/* Button hover – subtle lift */
+.btn-hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.btn-hover-lift:active {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-hover-lift:hover,
+  .btn-hover-lift:active {
+    transform: none;
+  }
+}
+
+/* Featured product block – flowing yellow/amber gradient + hover jiggle */
+@keyframes featuredBgFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes featuredJiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-0.5deg);
+  }
+  50% {
+    transform: rotate(0.5deg);
+  }
+  75% {
+    transform: rotate(-0.25deg);
+  }
+}
+
+.featured-product-block {
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.featured-product-block::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(120, 53, 15, 0.12) 0%,
+    rgba(180, 83, 9, 0.18) 12.5%,
+    rgba(251, 191, 36, 0.22) 25%,
+    rgba(253, 224, 71, 0.18) 37.5%,
+    rgba(251, 191, 36, 0.22) 50%,
+    rgba(180, 83, 9, 0.18) 62.5%,
+    rgba(251, 191, 36, 0.22) 75%,
+    rgba(253, 224, 71, 0.18) 87.5%,
+    rgba(120, 53, 15, 0.12) 100%
+  );
+  background-size: 200% 100%;
+  animation: featuredBgFlow 6s linear infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.featured-product-block:hover {
+  animation: featuredJiggle 0.5s ease-in-out;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4),
+    0 0 30px -5px rgba(251, 191, 36, 0.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .featured-product-block::before {
+    animation: none;
+  }
+  .featured-product-block:hover {
+    animation: none;
+  }
 }
