@@ -1,18 +1,28 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 type ImageLightboxProps = {
   src: string;
   alt: string;
   onClose: () => void;
+  zIndex?: number;
+  returnFocusRef?: React.RefObject<HTMLElement | null>;
 };
 
 const LENS_SIZE = 160;
 const LENS_ZOOM = 2.5;
+const DEFAULT_Z_INDEX = 60;
 
 type LensState = { x: number; y: number; rect: DOMRect } | null;
+
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  const selector =
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  return Array.from(container.querySelectorAll<HTMLElement>(selector));
+}
 
 function LensIcon({ className }: { className?: string }) {
   return (
@@ -43,26 +53,82 @@ export default function ImageLightbox({
   src,
   alt,
   onClose,
+  zIndex = DEFAULT_Z_INDEX,
+  returnFocusRef,
 }: ImageLightboxProps) {
   const [lensActive, setLensActive] = useState(false);
   const [lensState, setLensState] = useState<LensState>(null);
+  const [isClosing, setIsClosing] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleClose = useCallback(() => {
+    if (isClosing) return;
+    const reduceMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      onClose();
+      return;
+    }
+    setIsClosing(true);
+    setTimeout(() => onClose(), 280);
+  }, [isClosing, onClose]);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = prev;
-      document.removeEventListener("keydown", onKeyDown);
+      if (
+        returnFocusRef?.current &&
+        typeof returnFocusRef.current.focus === "function"
+      ) {
+        returnFocusRef.current.focus();
+      }
     };
-  }, [onClose]);
+  }, [returnFocusRef]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleClose();
+        return;
+      }
+      if (e.key !== "Tab" || !containerRef.current) return;
+      const focusables = getFocusableElements(containerRef.current);
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    },
+    [handleClose],
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
+  useEffect(() => {
+    const first = containerRef.current
+      ? getFocusableElements(containerRef.current)[0]
+      : null;
+    if (first) requestAnimationFrame(() => first.focus());
+  }, [src]);
 
   const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) onClose();
+    if (e.target === e.currentTarget) handleClose();
   };
 
   const toggleLens = (e: React.MouseEvent) => {
@@ -86,8 +152,9 @@ export default function ImageLightbox({
     lensActive && lensState && typeof document !== "undefined"
       ? createPortal(
           <div
-            className="pointer-events-none fixed z-[9999] rounded-full border-2 border-amber-400 bg-black/95 shadow-2xl ring-2 ring-amber-400/50"
+            className="pointer-events-none fixed rounded-full border-2 border-[#D4AF37] bg-black/95 shadow-2xl ring-2 ring-[#D4AF37]/50"
             style={{
+              zIndex: zIndex + 1,
               width: LENS_SIZE,
               height: LENS_SIZE,
               left: lensState.x - LENS_SIZE / 2,
@@ -105,14 +172,16 @@ export default function ImageLightbox({
             }}
             aria-hidden
           />,
-          document.body
+          document.body,
         )
       : null;
 
   return (
     <>
       <div
-        className="fixed inset-0 z-[60] flex flex-col items-center bg-black p-4 pt-24"
+        ref={containerRef}
+        className={`zoom-overlay fixed inset-0 flex flex-col items-center bg-black/95 p-3 pt-16 transition-opacity duration-300 sm:p-4 sm:pt-20 backdrop-blur-[10px] ${isClosing ? "opacity-0" : "opacity-100"}`}
+        style={{ zIndex }}
         role="dialog"
         aria-modal="true"
         aria-label={alt || "Puna veličina slike"}
@@ -120,12 +189,12 @@ export default function ImageLightbox({
       >
         <button
           type="button"
-          onClick={onClose}
-          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+          onClick={handleClose}
+          className="absolute right-3 top-3 z-10 flex min-h-[52px] min-w-[52px] items-center justify-center rounded-full bg-[rgba(212,175,55,0.95)] text-[#1a1a1a] shadow-lg transition-[transform,opacity] duration-200 hover:scale-110 hover:bg-[#D4AF37] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:right-4 sm:top-4 sm:min-h-[48px] sm:min-w-[48px]"
           aria-label="Zatvori"
         >
           <svg
-            className="h-5 w-5"
+            className="h-6 w-6 shrink-0"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -142,7 +211,7 @@ export default function ImageLightbox({
         <button
           type="button"
           onClick={toggleLens}
-          className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+          className="absolute left-3 top-3 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border-2 border-[#D4AF37]/40 bg-black/50 text-[#D4AF37] transition-colors hover:bg-[rgba(212,175,55,0.2)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:left-4 sm:top-4 sm:min-h-[48px] sm:min-w-[48px]"
           aria-label={
             lensActive
               ? "Isključi lupu za čitanje"
@@ -154,21 +223,48 @@ export default function ImageLightbox({
         </button>
 
         <div
-          className="mt-4 flex min-h-0 flex-1 items-start justify-center overflow-y-auto overflow-x-hidden"
+          className="zoom-content-in mt-4 flex max-h-[95vh] max-w-[95vw] flex-1 items-center justify-center overflow-hidden rounded-xl bg-white p-5 shadow-[0_20px_100px_rgba(0,0,0,0.8)]"
           onClick={(e) => e.stopPropagation()}
           onMouseMove={lensActive ? handleImageMouseMove : undefined}
           onMouseLeave={lensActive ? handleImageMouseLeave : undefined}
           style={lensActive ? { cursor: "crosshair" } : undefined}
         >
-          {/* Native img so tall documents (e.g. quality report) keep full height and scroll */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            ref={imageRef}
-            src={src}
-            alt={alt}
-            className="w-full max-w-4xl object-contain object-top"
-            draggable={false}
-          />
+          <TransformWrapper
+            initialScale={1}
+            minScale={0.5}
+            maxScale={4}
+            doubleClick={{ mode: "toggle", step: 0.7 }}
+            panning={{ velocityDisabled: true }}
+            wheel={{ step: 0.1 }}
+          >
+            <TransformComponent
+              wrapperStyle={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              contentStyle={{
+                maxWidth: "100%",
+                maxHeight: "85vh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {/* Native img for pinch/pan and lens; tall docs keep full height */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                ref={imageRef}
+                src={src}
+                alt={alt}
+                className="max-h-[85vh] w-full object-contain object-top select-none"
+                draggable={false}
+                style={{ touchAction: "none" }}
+              />
+            </TransformComponent>
+          </TransformWrapper>
         </div>
       </div>
       {lensNode}

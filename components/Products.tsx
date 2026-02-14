@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Product } from "@/components/ProductCard";
 import ProductCard from "@/components/ProductCard";
 import ProductHoverPanel from "@/components/ProductHoverPanel";
@@ -157,10 +157,28 @@ const products: Product[] = [
   },
 ];
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const m = window.matchMedia("(max-width: 639px)");
+    setIsMobile(m.matches);
+    const listener = () => setIsMobile(m.matches);
+    m.addEventListener("change", listener);
+    return () => m.removeEventListener("change", listener);
+  }, []);
+  return isMobile;
+}
+
 export default function Products() {
+  const isMobile = useIsMobile();
   const [hoveredProduct, setHoveredProduct] = useState<Product | null>(null);
   const [hoveredRect, setHoveredRect] = useState<DOMRect | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedAnchorRect, setSelectedAnchorRect] = useState<DOMRect | null>(
+    null,
+  );
   const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   const handleCardEnter = (product: Product, rect: DOMRect) => {
     if (leaveTimeoutRef.current) {
@@ -187,83 +205,124 @@ export default function Products() {
     setHoveredRect(null);
   };
 
+  const handleCardClickDetail = (product: Product, rect: DOMRect) => {
+    triggerRef.current = document.activeElement as HTMLElement | null;
+    setSelectedAnchorRect(rect);
+    setSelectedProduct(product);
+  };
+
+  const handleClosePanel = () => {
+    triggerRef.current?.focus();
+    triggerRef.current = null;
+    setSelectedProduct(null);
+    setSelectedAnchorRect(null);
+  };
+
+  const panelProduct = selectedProduct ?? hoveredProduct;
+  const panelRect = selectedAnchorRect ?? hoveredRect;
+  const showPanel =
+    !isMobile && panelProduct && panelRect && panelProduct.longDescription;
+  const isPinned = Boolean(selectedProduct);
+
   return (
     <section
       id="proizvodi"
       className="border-t border-white/10 bg-[var(--background)] py-16 sm:py-20 lg:py-24"
       aria-labelledby="products-title"
     >
-      <RevealOnScroll>
+      <RevealOnScroll once className="reveal-products">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2
-            id="products-title"
-            className="mb-12 text-center text-3xl font-bold tracking-tight text-[var(--foreground)] sm:mb-16 sm:text-4xl lg:text-5xl"
-          >
-            Proizvodi
-          </h2>
+          <div className="reveal-products-heading mb-16 lg:mb-20">
+            <h2
+              id="products-title"
+              className="text-center text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl"
+            >
+              Proizvodi
+            </h2>
+            <div
+              className="mx-auto mt-4 h-[3px] w-20 bg-[#D4AF37]"
+              aria-hidden
+            />
+            <p className="mt-3 text-center text-sm text-[var(--foreground)]/60 sm:text-base">
+              Naši prirodni proizvodi od meda
+            </p>
+          </div>
 
-          {/* Featured: Kesica — animated background + hover jiggle */}
-          <div className="featured-product-block group/featured relative mb-14 overflow-hidden rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-400/10 via-transparent to-amber-500/5 shadow-xl shadow-amber-400/10 sm:mb-16">
-            <div className="absolute right-4 top-4 rounded-full bg-amber-400/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-400 sm:right-6 sm:top-6 sm:px-4 sm:py-1.5 sm:text-sm">
-              Izdvojeno
+          {/* Featured: JEDNA KESICA — spec gradient, badge, CTA */}
+          <div
+            className="reveal-products-featured group/featured relative mx-auto mb-16 max-w-[1200px] overflow-hidden rounded-2xl outline-none lg:mb-20"
+            style={{
+              background:
+                "linear-gradient(135deg, #3d2f1f 0%, #2d1f0f 50%, #1d1309 100%)",
+              border: "1px solid rgba(212,175,55,0.2)",
+            }}
+          >
+            <div
+              className="flex min-h-[52px] items-center justify-end px-6 pt-4 pb-4 sm:px-8 sm:pb-5 lg:px-10 lg:pb-6 xl:px-12"
+              aria-hidden
+            >
+              <span className="featured-badge rounded-md bg-[#D4AF37] px-5 py-2 text-xs font-bold uppercase tracking-[0.2em] text-[#1a1a1a]">
+                Izdvojeno
+              </span>
             </div>
-            <div className="grid grid-cols-1 items-center gap-8 p-6 sm:p-8 lg:grid-cols-2 lg:gap-12 lg:p-10">
-              <div className="relative order-2 aspect-square max-w-md overflow-hidden rounded-xl bg-black/30 lg:order-1 lg:max-w-none">
+            <div className="grid grid-cols-1 items-center gap-6 px-6 pb-6 sm:gap-8 sm:px-8 sm:pb-8 md:gap-10 lg:grid-cols-[2fr_3fr] lg:gap-12 lg:px-10 lg:pb-10 xl:gap-14 xl:px-12 xl:pb-12">
+              <div
+                className="relative order-1 aspect-[4/5] overflow-hidden rounded-xl outline-none transition-transform duration-300 ease-out group-hover/featured:scale-[1.02]"
+                style={{ border: "1px solid rgba(212,175,55,0.2)" }}
+              >
                 <Image
                   src={featuredProduct.image}
                   alt={featuredProduct.name}
                   fill
-                  className="object-contain object-center p-8 transition-transform duration-300 ease-out group-hover/featured:scale-105"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover object-center"
+                  sizes="(max-width: 1024px) 100vw, 40vw"
                   priority
                 />
-                <div
-                  className="absolute inset-0 rounded-xl ring-2 ring-inset ring-amber-400/20"
-                  aria-hidden
-                />
               </div>
-              <div className="order-1 flex flex-col justify-center space-y-4 lg:order-2 lg:space-y-6">
-                <h3 className="text-3xl font-medium uppercase tracking-tight text-[#fde74c] sm:text-4xl lg:text-5xl">
+              <div className="order-2 flex flex-col justify-center">
+                <h3 className="mb-4 text-3xl font-bold uppercase tracking-tight text-[#D4AF37] sm:text-4xl lg:text-5xl">
                   Jedna kesica.
                 </h3>
-                <div className="space-y-4 text-base leading-loose text-[#ffbf00] sm:text-lg">
-                  <p>
-                    Sa ukusom{" "}
-                    <span className="font-semibold uppercase italic text-[#618b25]">
-                      prirode
-                    </span>{" "}
-                    i{" "}
-                    <span className="font-semibold uppercase italic text-[#fde74c]">
-                      luksuza
-                    </span>
-                    .
-                  </p>
+                <p className="mb-5 text-lg text-[#e5e5e5] sm:text-xl">
+                  Sa ukusom <span className="italic">PRIRODE</span> i{" "}
+                  <span className="italic">LUKSUZA</span>
+                </p>
+                <div className="max-w-[540px] space-y-5 text-base leading-[1.75] text-[#c0c0c0] sm:text-[17px] sm:leading-[1.8]">
                   <p>
                     Crna površina govori tiho, zlatna slova nose poruku —{" "}
-                    <span className="font-semibold uppercase text-[#fde74c]">
+                    <span className="font-semibold uppercase text-[#D4AF37]">
                       prestiž je tu.
                     </span>
                   </p>
                   <p>
                     U njoj je{" "}
-                    <span className="font-semibold uppercase italic text-[#618b25]">
+                    <span className="font-semibold uppercase italic text-[#D4AF37]">
                       MOĆ PRIRODE
                     </span>
                     , upakovana za one koji znaju suštinu.
                   </p>
                   <p>
-                    <span className="font-semibold uppercase text-[#fde74c]">
+                    <span className="font-semibold uppercase text-[#D4AF37]">
                       MEDEN
                     </span>{" "}
                     — tamo gde se luksuz ne pokazuje, već podrazumeva.
                   </p>
                 </div>
-                <div className="h-px w-16 bg-amber-400/50" aria-hidden />
+                <div className="my-5 h-[3px] w-20 bg-[#D4AF37]" aria-hidden />
+                <a
+                  href="#kontakt"
+                  className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg bg-[#D4AF37] px-8 py-3.5 text-base font-semibold text-[#1a1a1a] shadow-[0_4px_16px_rgba(212,175,55,0.3)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-[0_6px_24px_rgba(212,175,55,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1d1309]"
+                >
+                  Saznaj više
+                </a>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div
+            className="reveal-products-grid mx-auto grid max-w-[1400px] grid-cols-2 gap-4 px-4 py-10 max-[400px]:grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] sm:gap-8 sm:px-5"
+            role="list"
+          >
             {products.map((product) => (
               <ProductCard
                 key={product.id}
@@ -274,15 +333,22 @@ export default function Products() {
                 onMouseLeave={
                   product.longDescription ? handleCardLeave : undefined
                 }
+                onClickDetail={
+                  !isMobile && product.longDescription
+                    ? handleCardClickDetail
+                    : undefined
+                }
               />
             ))}
           </div>
-          {hoveredProduct && hoveredRect && (
+          {showPanel && panelProduct && panelRect && (
             <ProductHoverPanel
-              product={hoveredProduct}
-              anchorRect={hoveredRect}
+              product={panelProduct}
+              anchorRect={panelRect}
               onMouseEnter={handlePanelEnter}
               onMouseLeave={handlePanelLeave}
+              onClose={handleClosePanel}
+              isPinned={isPinned}
             />
           )}
         </div>

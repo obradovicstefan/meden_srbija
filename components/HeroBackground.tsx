@@ -34,7 +34,7 @@ export default function HeroBackground() {
           aria-label="Meden Srbija – početna"
         >
           <Image
-            src="/images/logo/logo.webp"
+            src="/images/logo/logo.svg"
             alt="Meden Srbija"
             width={800}
             height={320}

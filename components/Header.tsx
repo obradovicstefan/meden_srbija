@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const navLinks = [
   { href: "#pocetna", label: "Početna" },
@@ -12,38 +12,92 @@ const navLinks = [
   { href: "#kontakt", label: "Kontakt" },
 ];
 
+function getCurrentHash() {
+  if (typeof window === "undefined") return "";
+  const hash = window.location.hash;
+  return hash === "" ? "#pocetna" : hash;
+}
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [currentHash, setCurrentHash] = useState("#pocetna");
+
+  useEffect(() => {
+    setCurrentHash(getCurrentHash());
+    const handleHashChange = () => setCurrentHash(getCurrentHash());
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  /* Scroll-spy: highlight nav link for the section currently in view */
+  useEffect(() => {
+    const sectionIds = navLinks.map((l) => l.href.slice(1));
+    const triggerTop = 140;
+
+    const updateActive = () => {
+      let activeId: string | null = null;
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const top = el.getBoundingClientRect().top;
+        if (top <= triggerTop) activeId = id;
+      }
+      if (activeId) setCurrentHash("#" + activeId);
+    };
+
+    updateActive();
+    window.addEventListener("scroll", updateActive, { passive: true });
+    return () => window.removeEventListener("scroll", updateActive);
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full overflow-visible border-b border-white/10 bg-[var(--background)]/95 backdrop-blur-sm">
-      <div className="mx-auto flex h-16 min-h-16 max-w-7xl items-center justify-between overflow-visible px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center overflow-visible" aria-label="Meden Srbija – početna">
+    <header className="sticky top-0 z-50 w-full overflow-visible border-b border-amber-400/30 bg-black/60 backdrop-blur-[10px]" aria-label="Zaglavlje">
+      {/* Backdrop for mobile menu – tap to close */}
+      <div
+        className={`mobile-backdrop fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden ${menuOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        onClick={() => setMenuOpen(false)}
+        aria-hidden="true"
+      />
+      <div className="relative z-50 mx-auto flex h-14 min-h-14 max-w-7xl items-center justify-between overflow-visible px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="logo-link flex shrink-0 items-center overflow-visible pl-0 pr-3" aria-label="Meden Srbija – početna">
           <Image
-            src="/images/logo/logo.webp"
+            src="/images/logo/logo.svg"
             alt="Meden Srbija"
-            width={660}
-            height={264}
-            className="h-[10.5rem] w-auto object-contain sm:h-48"
+            width={200}
+            height={80}
+            className="h-32 w-auto object-contain sm:h-36 md:h-40 lg:h-44"
             priority
           />
         </Link>
 
-        <nav className="hidden md:flex md:items-center md:gap-8" aria-label="Glavna navigacija">
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="text-sm font-semibold uppercase tracking-wider text-amber-400 transition-all duration-200 hover:scale-110 hover:text-amber-300 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"
-            >
-              {label}
-            </Link>
-          ))}
+        <nav className="hidden md:flex md:items-center md:gap-10" aria-label="Glavna navigacija">
+          {navLinks.map(({ href, label }) => {
+            const isActive = currentHash === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setCurrentHash(href)}
+                className={`nav-link relative rounded text-sm font-semibold uppercase tracking-wider transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] ${isActive ? "nav-link-active text-amber-400" : "text-[var(--foreground)] hover:text-amber-400"}`}
+              >
+                {label}
+              </Link>
+            );
+          })}
         </nav>
 
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-md text-amber-400 transition-colors hover:text-amber-300 md:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-md text-[var(--foreground)] transition-colors duration-200 hover:text-amber-400 md:hidden"
           onClick={() => setMenuOpen((o) => !o)}
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
@@ -51,7 +105,7 @@ export default function Header() {
         >
           <span className="sr-only">{menuOpen ? "Zatvori" : "Meni"}</span>
           <svg
-            className="h-6 w-6"
+            className="h-6 w-6 transition-transform duration-200"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -68,22 +122,34 @@ export default function Header() {
 
       <div
         id="mobile-menu"
-        className={`md:hidden ${menuOpen ? "block" : "hidden"} border-t border-white/10 bg-[var(--background)]`}
+        className={`mobile-menu-panel relative z-50 md:hidden ${menuOpen ? "mobile-menu-panel--open" : "mobile-menu-panel--closed"}`}
         role="region"
         aria-label="Mobilni meni"
+        {...(!menuOpen && { inert: true })}
       >
-        <nav className="flex flex-col gap-0 px-4 py-4" aria-label="Mobilna navigacija">
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="rounded-md px-3 py-2 text-sm font-semibold uppercase tracking-wider text-amber-400 transition-all duration-200 hover:bg-amber-400/10 hover:text-amber-300 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]"
-              onClick={() => setMenuOpen(false)}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
+        <div className="border-t border-white/5 bg-[var(--background)]/90 backdrop-blur-sm">
+          <nav
+            className={`flex flex-col items-center gap-0 px-4 py-4 text-center ${menuOpen ? "mobile-nav-open" : ""}`}
+            aria-label="Mobilna navigacija"
+          >
+            {navLinks.map(({ href, label }) => {
+              const isActive = currentHash === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`mobile-nav-link flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md px-3 py-3 text-sm font-semibold uppercase tracking-wider transition-colors duration-200 hover:bg-amber-400/10 hover:text-amber-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-inset ${isActive ? "text-amber-400" : "text-[var(--foreground)]"}`}
+                  onClick={() => {
+                    setCurrentHash(href);
+                    setMenuOpen(false);
+                  }}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
       </div>
     </header>
   );

@@ -11,9 +11,25 @@ const PHONE_BOJAN_HREF = "tel:+381621198196";
 const EMAIL = "office@medensrbija.com";
 const EMAIL_HREF = "mailto:office@medensrbija.com";
 
+type FieldErrors = { name?: string; email?: string; message?: string };
+
+function validateEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
 export default function Contact() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  function validateFields(name: string, email: string, message: string): FieldErrors {
+    const err: FieldErrors = {};
+    if (!name.trim()) err.name = "Unesite ime i prezime.";
+    if (!email.trim()) err.email = "Unesite e-poštu.";
+    else if (!validateEmail(email)) err.email = "Unesite ispravnu e-poštu.";
+    if (!message.trim()) err.message = "Unesite poruku.";
+    return err;
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -22,6 +38,12 @@ export default function Contact() {
     const email = (form.querySelector('[name="email"]') as HTMLInputElement)?.value ?? "";
     const message = (form.querySelector('[name="message"]') as HTMLTextAreaElement)?.value ?? "";
 
+    const errors = validateFields(name, email, message);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors({});
     setStatus("sending");
     setErrorMessage("");
 
@@ -39,6 +61,7 @@ export default function Contact() {
         return;
       }
       setStatus("success");
+      setFieldErrors({});
       form.reset();
     } catch {
       setStatus("error");
@@ -49,27 +72,23 @@ export default function Contact() {
   return (
     <section
       id="kontakt"
-      className="border-t border-white/10 bg-[var(--background)] py-16 sm:py-20 lg:py-24"
+      className="contact-section border-t border-white/10 bg-[var(--background)]"
       aria-labelledby="contact-title"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2
-          id="contact-title"
-          className="mb-6 text-center text-3xl font-bold tracking-tight text-[var(--foreground)] sm:mb-8 sm:text-4xl lg:text-5xl"
-        >
-          Kontakt
-        </h2>
+      <h2 id="contact-title" className="contact-heading text-[var(--foreground)]">
+        Kontakt
+      </h2>
 
-        <RevealOnScroll>
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
+      <RevealOnScroll>
+        <div className="contact-grid">
           <div className="space-y-8">
-            <p className="text-base leading-relaxed text-[var(--foreground)]/80 sm:text-lg">
+            <p className="contact-subtitle">
               Javite nam se putem telefona ili e-pošte. Radujemo se vašim porukama.
             </p>
 
-            <ul className="space-y-6" aria-label="Kontakt informacije">
-              <li className="flex items-center gap-4">
-                <span className="relative flex h-7 w-7 shrink-0 items-center justify-center">
+            <ul className="contact-info" aria-label="Kontakt informacije">
+              <li className="contact-item">
+                <div className="contact-icon">
                   <Image
                     src="/images/socials/phone.webp"
                     alt=""
@@ -78,26 +97,20 @@ export default function Contact() {
                     className="object-contain"
                     sizes="28px"
                   />
-                </span>
+                </div>
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <span className="sr-only">Telefon:</span>
-                  <a
-                    href={PHONE_BOGDAN_HREF}
-                    className="text-[var(--foreground)] hover:text-amber-400/90 focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:ring-offset-2 focus:ring-offset-[var(--background)]"
-                  >
-                    Bogdan {PHONE_BOGDAN}
+                  <a href={PHONE_BOGDAN_HREF} className="contact-link">
+                    <span className="contact-text">Bogdan {PHONE_BOGDAN}</span>
                   </a>
-                  <span className="text-[var(--foreground)]/50">/</span>
-                  <a
-                    href={PHONE_BOJAN_HREF}
-                    className="text-[var(--foreground)] hover:text-amber-400/90 focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:ring-offset-2 focus:ring-offset-[var(--background)]"
-                  >
-                    Bojan {PHONE_BOJAN}
+                  <span className="contact-text-separator" aria-hidden="true">/</span>
+                  <a href={PHONE_BOJAN_HREF} className="contact-link">
+                    <span className="contact-text">Bojan {PHONE_BOJAN}</span>
                   </a>
                 </div>
               </li>
-              <li className="flex items-center gap-4">
-                <span className="relative flex h-7 w-7 shrink-0 items-center justify-center">
+              <li className="contact-item">
+                <div className="contact-icon">
                   <Image
                     src="/images/socials/email.webp"
                     alt=""
@@ -106,40 +119,37 @@ export default function Contact() {
                     className="object-contain"
                     sizes="28px"
                   />
-                </span>
+                </div>
                 <div>
                   <span className="sr-only">E-pošta:</span>
-                  <a
-                    href={EMAIL_HREF}
-                    className="text-[var(--foreground)] hover:text-amber-400/90 focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:ring-offset-2 focus:ring-offset-[var(--background)]"
-                  >
-                    {EMAIL}
+                  <a href={EMAIL_HREF} className="contact-link">
+                    <span className="contact-text">{EMAIL}</span>
                   </a>
                 </div>
               </li>
             </ul>
 
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-6 sm:p-8" aria-labelledby="isporuka-title">
-              <h3 id="isporuka-title" className="text-lg font-semibold text-[var(--foreground)] sm:text-xl">
+            <div className="delivery-box" aria-labelledby="isporuka-title">
+              <h3 id="isporuka-title" className="delivery-heading">
                 Isporuka
               </h3>
-              <p className="mt-3 text-base leading-relaxed text-[var(--foreground)]/85 sm:text-lg">
-                U saradnji sa <strong className="text-[var(--foreground)]/95">BEX</strong> kurirskom službom vršimo isporuku na teritoriji cele Srbije.
+              <p className="delivery-text">
+                U saradnji sa <strong>BEX</strong> kurirskom službom vršimo isporuku na teritoriji cele Srbije.
               </p>
-              <p className="mt-3 text-base leading-relaxed text-[var(--foreground)]/85 sm:text-lg">
-                Isporuka paketa traje <strong className="text-[var(--foreground)]/95">između 3 i 5 radnih dana</strong> od momenta slanja.
+              <p className="delivery-text">
+                Isporuka paketa traje <strong>između 3 i 5 radnih dana</strong> od momenta slanja.
               </p>
             </div>
           </div>
 
           <form
-            className="space-y-6 rounded-lg border border-white/10 bg-white/[0.02] p-6 sm:p-8"
+            className="contact-form"
             noValidate
             aria-label="Kontakt forma"
             onSubmit={handleSubmit}
           >
-            <div>
-              <label htmlFor="contact-name" className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+            <div className="form-group">
+              <label htmlFor="contact-name" className="form-label">
                 Ime i prezime
               </label>
               <input
@@ -148,11 +158,21 @@ export default function Contact() {
                 name="name"
                 autoComplete="name"
                 placeholder="Vaše ime"
-                className="w-full rounded-md border border-white/20 bg-white/5 px-4 py-3 text-[var(--foreground)] placeholder:text-[var(--foreground)]/50 focus:border-amber-400/40 focus:outline-none focus:ring-2 focus:ring-amber-400/30"
+                className={`form-input ${fieldErrors.name ? "error" : ""}`}
+                required
+                aria-required="true"
+                aria-invalid={!!fieldErrors.name}
+                aria-describedby={fieldErrors.name ? "contact-name-error" : undefined}
+                onChange={() => setFieldErrors((prev) => ({ ...prev, name: undefined }))}
               />
+              {fieldErrors.name && (
+                <span id="contact-name-error" className="form-error-message" role="alert">
+                  {fieldErrors.name}
+                </span>
+              )}
             </div>
-            <div>
-              <label htmlFor="contact-email" className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+            <div className="form-group">
+              <label htmlFor="contact-email" className="form-label">
                 E-pošta
               </label>
               <input
@@ -161,11 +181,21 @@ export default function Contact() {
                 name="email"
                 autoComplete="email"
                 placeholder="vas@email.rs"
-                className="w-full rounded-md border border-white/20 bg-white/5 px-4 py-3 text-[var(--foreground)] placeholder:text-[var(--foreground)]/50 focus:border-amber-400/40 focus:outline-none focus:ring-2 focus:ring-amber-400/30"
+                className={`form-input ${fieldErrors.email ? "error" : ""}`}
+                required
+                aria-required="true"
+                aria-invalid={!!fieldErrors.email}
+                aria-describedby={fieldErrors.email ? "contact-email-error" : undefined}
+                onChange={() => setFieldErrors((prev) => ({ ...prev, email: undefined }))}
               />
+              {fieldErrors.email && (
+                <span id="contact-email-error" className="form-error-message" role="alert">
+                  {fieldErrors.email}
+                </span>
+              )}
             </div>
-            <div>
-              <label htmlFor="contact-message" className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+            <div className="form-group">
+              <label htmlFor="contact-message" className="form-label">
                 Poruka
               </label>
               <textarea
@@ -173,30 +203,39 @@ export default function Contact() {
                 name="message"
                 rows={4}
                 placeholder="Vaša poruka..."
-                className="w-full resize-y rounded-md border border-white/20 bg-white/5 px-4 py-3 text-[var(--foreground)] placeholder:text-[var(--foreground)]/50 focus:border-amber-400/40 focus:outline-none focus:ring-2 focus:ring-amber-400/30 min-h-[120px]"
+                className={`form-textarea ${fieldErrors.message ? "error" : ""}`}
+                required
+                aria-required="true"
+                aria-invalid={!!fieldErrors.message}
+                aria-describedby={fieldErrors.message ? "contact-message-error" : undefined}
+                onChange={() => setFieldErrors((prev) => ({ ...prev, message: undefined }))}
               />
+              {fieldErrors.message && (
+                <span id="contact-message-error" className="form-error-message" role="alert">
+                  {fieldErrors.message}
+                </span>
+              )}
             </div>
             {status === "success" && (
-              <p className="rounded-md border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-400" role="status">
+              <p className="form-alert-success" role="status">
                 Poruka je uspešno poslata. Javićemo vam se uskoro.
               </p>
             )}
             {status === "error" && errorMessage && (
-              <p className="rounded-md border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400" role="alert">
+              <p className="form-alert-error" role="alert">
                 {errorMessage}
               </p>
             )}
             <button
               type="submit"
               disabled={status === "sending"}
-              className="btn-hover-lift w-full rounded-md border border-amber-400/40 bg-amber-400/10 py-3 text-sm font-medium text-amber-400 transition-colors hover:bg-amber-400/20 focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:ring-offset-2 focus:ring-offset-[var(--background)] disabled:opacity-60 disabled:pointer-events-none sm:w-auto sm:px-8"
+              className={`form-submit focus-ring-gold ${status === "sending" ? "loading" : ""}`}
             >
               {status === "sending" ? "Šaljem…" : "Pošalji poruku"}
             </button>
           </form>
-          </div>
-        </RevealOnScroll>
-      </div>
+        </div>
+      </RevealOnScroll>
     </section>
   );
 }
