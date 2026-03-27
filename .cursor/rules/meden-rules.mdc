@@ -1,6 +1,0 @@
----
-alwaysApply: true
----
-
-Write all code using the latest NextJS version and follow best practices.
-Use dark theme for my app styling, follow the same styling across the app.
