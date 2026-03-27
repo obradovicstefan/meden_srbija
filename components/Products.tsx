@@ -1,17 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import type { Product } from "@/components/ProductCard";
 import ProductCard from "@/components/ProductCard";
-import ProductHoverPanel from "@/components/ProductHoverPanel";
 import RevealOnScroll from "@/components/RevealOnScroll";
 
 const featuredProduct: Product = {
   id: "kesica",
   name: "Kesica",
   description: "", // Rendered with custom styling in featured block
-  image: "/images/products/KESICA.webp",
+  image: "/images/products/meden-bottle.webp",
   weightVariants: "",
 };
 
@@ -158,199 +157,229 @@ const products: Product[] = [
 ];
 
 function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const m = window.matchMedia("(max-width: 639px)");
-    setIsMobile(m.matches);
-    const listener = () => setIsMobile(m.matches);
-    m.addEventListener("change", listener);
-    return () => m.removeEventListener("change", listener);
-  }, []);
-  return isMobile;
+  const query = "(max-width: 639px)";
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      if (typeof window === "undefined") return () => {};
+      const m = window.matchMedia(query);
+      m.addEventListener("change", onStoreChange);
+      return () => m.removeEventListener("change", onStoreChange);
+    },
+    () =>
+      typeof window === "undefined" ? false : window.matchMedia(query).matches,
+    () => false,
+  );
 }
 
 export default function Products() {
   const isMobile = useIsMobile();
-  const [hoveredProduct, setHoveredProduct] = useState<Product | null>(null);
-  const [hoveredRect, setHoveredRect] = useState<DOMRect | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedAnchorRect, setSelectedAnchorRect] = useState<DOMRect | null>(
-    null,
-  );
+  const [hoveredProductId, setHoveredProductId] = useState<string | null>(null);
+  const [showAllProducts, setShowAllProducts] = useState(false);
+  const [isCollapsingProducts, setIsCollapsingProducts] = useState(false);
   const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const triggerRef = useRef<HTMLElement | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
-  const handleCardEnter = (product: Product, rect: DOMRect) => {
+  const expandedOrAnimating = showAllProducts || isCollapsingProducts;
+  const displayedProducts = expandedOrAnimating ? products : products.slice(0, 3);
+
+  const handleToggleProducts = () => {
+    if (!showAllProducts) {
+      setShowAllProducts(true);
+      return;
+    }
+
+    setHoveredProductId(null);
+    const isMobileViewport = window.matchMedia("(max-width: 900px)").matches;
+
+    if (isMobileViewport) {
+      requestAnimationFrame(() => {
+        sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      setIsCollapsingProducts(true);
+      window.setTimeout(() => {
+        setShowAllProducts(false);
+        setIsCollapsingProducts(false);
+      }, 220);
+      return;
+    }
+
+    setShowAllProducts(false);
+    sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleCardEnter = (product: Product, _rect: DOMRect) => {
+    if (isMobile) return;
+
     if (leaveTimeoutRef.current) {
       clearTimeout(leaveTimeoutRef.current);
       leaveTimeoutRef.current = null;
     }
-    setHoveredRect(rect);
-    setHoveredProduct(product);
+    setHoveredProductId(product.id);
   };
 
   const handleCardLeave = () => {
-    leaveTimeoutRef.current = setTimeout(() => setHoveredProduct(null), 180);
+    if (isMobile) return;
+    leaveTimeoutRef.current = setTimeout(() => setHoveredProductId(null), 180);
   };
-
-  const handlePanelEnter = () => {
-    if (leaveTimeoutRef.current) {
-      clearTimeout(leaveTimeoutRef.current);
-      leaveTimeoutRef.current = null;
-    }
-  };
-
-  const handlePanelLeave = () => {
-    setHoveredProduct(null);
-    setHoveredRect(null);
-  };
-
-  const handleCardClickDetail = (product: Product, rect: DOMRect) => {
-    triggerRef.current = document.activeElement as HTMLElement | null;
-    setSelectedAnchorRect(rect);
-    setSelectedProduct(product);
-  };
-
-  const handleClosePanel = () => {
-    triggerRef.current?.focus();
-    triggerRef.current = null;
-    setSelectedProduct(null);
-    setSelectedAnchorRect(null);
-  };
-
-  const panelProduct = selectedProduct ?? hoveredProduct;
-  const panelRect = selectedAnchorRect ?? hoveredRect;
-  const showPanel =
-    !isMobile && panelProduct && panelRect && panelProduct.longDescription;
-  const isPinned = Boolean(selectedProduct);
 
   return (
     <section
+      ref={sectionRef}
       id="proizvodi"
-      className="border-t border-white/10 bg-[var(--background)] py-16 sm:py-20 lg:py-24"
+      className="border-t border-white/10"
       aria-labelledby="products-title"
     >
       <RevealOnScroll once className="reveal-products">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="reveal-products-heading mb-16 lg:mb-20">
-            <h2
-              id="products-title"
-              className="text-center text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl"
-            >
-              Proizvodi
+        <div className="ms-products-header mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+          <div className="reveal-products-heading ms-products-heading">
+            <div className="ms-products-header-toprow" aria-hidden>
+              <div className="ms-products-vertical-line" />
+              <div className="ms-products-toplabel">Meden Srbija</div>
+              <div className="ms-products-vertical-line" />
+            </div>
+
+            <h2 id="products-title" className="ms-products-title">
+              PROIZVODI
             </h2>
-            <div
-              className="mx-auto mt-4 h-[3px] w-20 bg-[#D4AF37]"
-              aria-hidden
-            />
-            <p className="mt-3 text-center text-sm text-[var(--foreground)]/60 sm:text-base">
+
+            <div className="ms-products-divider" aria-hidden />
+            <p className="ms-products-subtitle">
               Naši prirodni proizvodi od meda
             </p>
           </div>
 
-          {/* Featured: JEDNA KESICA — spec gradient, badge, CTA */}
-          <div
-            className="reveal-products-featured group/featured relative mx-auto mb-16 max-w-[1200px] overflow-hidden rounded-2xl outline-none lg:mb-20"
-            style={{
-              background:
-                "linear-gradient(135deg, #3d2f1f 0%, #2d1f0f 50%, #1d1309 100%)",
-              border: "1px solid rgba(212,175,55,0.2)",
-            }}
-          >
-            <div
-              className="flex min-h-[52px] items-center justify-end px-6 pt-4 pb-4 sm:px-8 sm:pb-5 lg:px-10 lg:pb-6 xl:px-12"
-              aria-hidden
-            >
-              <span className="featured-badge rounded-md bg-[#D4AF37] px-5 py-2 text-xs font-bold uppercase tracking-[0.2em] text-[#1a1a1a]">
-                Izdvojeno
-              </span>
-            </div>
-            <div className="grid grid-cols-1 items-center gap-6 px-6 pb-6 sm:gap-8 sm:px-8 sm:pb-8 md:gap-10 lg:grid-cols-[2fr_3fr] lg:gap-12 lg:px-10 lg:pb-10 xl:gap-14 xl:px-12 xl:pb-12">
-              <div
-                className="relative order-1 aspect-[4/5] overflow-hidden rounded-xl outline-none transition-transform duration-300 ease-out group-hover/featured:scale-[1.02]"
-                style={{ border: "1px solid rgba(212,175,55,0.2)" }}
-              >
-                <Image
-                  src={featuredProduct.image}
-                  alt={featuredProduct.name}
-                  fill
-                  className="object-cover object-center"
-                  sizes="(max-width: 1024px) 100vw, 40vw"
-                  priority
-                />
+          {/* Featured: JEDNA KESICA */}
+          <div className="reveal-products-featured ms-animate-fadeup ms-products-featured-animate featured-card relative mx-auto max-w-[1200px]">
+            <div className="featured-badge">IZDVOJENO</div>
+
+            <div className="featured-card-grid">
+              <div className="featured-img-pane">
+                <div
+                  className="ms-featured-image-wrap"
+                  style={{ position: "absolute", inset: 0 }}
+                >
+                  <Image
+                    src={featuredProduct.image}
+                    alt={featuredProduct.name}
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 1024px) 100vw, 40vw"
+                    priority
+                  />
+                </div>
+                <div className="featured-img-vignette" aria-hidden />
+                <div className="featured-img-shimmer" aria-hidden />
               </div>
-              <div className="order-2 flex flex-col justify-center">
-                <h3 className="mb-4 text-3xl font-bold uppercase tracking-tight text-[#D4AF37] sm:text-4xl lg:text-5xl">
-                  Jedna kesica.
-                </h3>
-                <p className="mb-5 text-lg text-[#e5e5e5] sm:text-xl">
-                  Sa ukusom <span className="italic">PRIRODE</span> i{" "}
-                  <span className="italic">LUKSUZA</span>
+
+              <div className="featured-content">
+                <div className="featured-prelabel">
+                  <div className="featured-prelabel-line" aria-hidden />
+                  <div className="featured-prelabel-text">
+                    PRIRODNI PROIZVOD
+                  </div>
+                </div>
+
+                <h3 className="featured-heading">GUTLJAJ DIVLJINE.</h3>
+                <p className="featured-tagline ms-feat-tagline">
+                  Jedan trenutak — koji traje duže.
                 </p>
-                <div className="max-w-[540px] space-y-5 text-base leading-[1.75] text-[#c0c0c0] sm:text-[17px] sm:leading-[1.8]">
-                  <p>
-                    Crna površina govori tiho, zlatna slova nose poruku —{" "}
-                    <span className="font-semibold uppercase text-[#D4AF37]">
-                      prestiž je tu.
-                    </span>
+
+                <div className="featured-divider-thin" aria-hidden />
+
+                <div className="featured-body ms-feat-body">
+                  <p className="ms-feat-body-statement">
+                    Više od dvadeset godina posvećenosti.
                   </p>
-                  <p>
-                    U njoj je{" "}
-                    <span className="font-semibold uppercase italic text-[#D4AF37]">
-                      MOĆ PRIRODE
-                    </span>
-                    , upakovana za one koji znaju suštinu.
+
+                  <div
+                    className="featured-paragraph-separator ms-feat-body-divider"
+                    aria-hidden
+                  />
+
+                  <ul className="ms-feat-tasting-notes">
+                    <li>Šljivov destilat, sazrevan pet godina u hrastovim buradima</li>
+                    <li>Planinski med i lekovito bilje sa planine Kukavice</li>
+                  </ul>
+
+                  <div
+                    className="featured-paragraph-separator ms-feat-body-divider"
+                    aria-hidden
+                  />
+
+                  <p className="ms-feat-body-intrigue">
+                    U njoj je <strong>TAJNA</strong> porodice Stanković.
                   </p>
-                  <p>
-                    <span className="font-semibold uppercase text-[#D4AF37]">
-                      MEDEN
-                    </span>{" "}
-                    — tamo gde se luksuz ne pokazuje, već podrazumeva.
+
+                  <p className="ms-feat-body-signature">
+                    <span className="featured-brandname ms-brand">MEDEN</span> —
+                    piće čiji ukus govori istoriju.
                   </p>
                 </div>
-                <div className="my-5 h-[3px] w-20 bg-[#D4AF37]" aria-hidden />
-                <a
-                  href="#kontakt"
-                  className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg bg-[#D4AF37] px-8 py-3.5 text-base font-semibold text-[#1a1a1a] shadow-[0_4px_16px_rgba(212,175,55,0.3)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-[0_6px_24px_rgba(212,175,55,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1d1309]"
-                >
+
+                <div className="my-5 h-[3px] w-20 bg-[#c9920a]" aria-hidden />
+
+                <a href="#kontakt" className="btn-primary">
                   Saznaj više
                 </a>
               </div>
             </div>
           </div>
 
-          <div
-            className="reveal-products-grid mx-auto grid max-w-[1400px] grid-cols-2 gap-4 px-4 py-10 max-[400px]:grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] sm:gap-8 sm:px-5"
-            role="list"
-          >
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onMouseEnter={
-                  product.longDescription ? handleCardEnter : undefined
-                }
-                onMouseLeave={
-                  product.longDescription ? handleCardLeave : undefined
-                }
-                onClickDetail={
-                  !isMobile && product.longDescription
-                    ? handleCardClickDetail
-                    : undefined
-                }
-              />
-            ))}
+          <div className="reveal-products-grid">
+            <div className="grid-header">
+              <div className="grid-title">Sve vrste meda</div>
+              <div className="grid-line" aria-hidden />
+            </div>
+
+            <div
+              className="ms-grid"
+              role="list"
+              aria-labelledby="products-title"
+            >
+              {displayedProducts.map((product, index) => {
+                const isExtra = index >= 3;
+                const mobileExtraClass = isExtra
+                  ? showAllProducts && !isCollapsingProducts
+                    ? " ms-mobile-extra-enter"
+                    : isCollapsingProducts
+                      ? " ms-mobile-extra-exit"
+                      : ""
+                  : "";
+
+                return (
+                  <ProductCard
+                    key={product.id}
+                    className={`ms-animate-fadeup ms-products-card-animate${mobileExtraClass}`}
+                  style={{
+                    animationDelay: `${Math.min(0.1 + index * 0.1, 0.8)}s`,
+                  }}
+                  product={product}
+                  onMouseEnter={
+                    product.longDescription ? handleCardEnter : undefined
+                  }
+                  onMouseLeave={
+                    product.longDescription ? handleCardLeave : undefined
+                  }
+                  isHovered={hoveredProductId === product.id}
+                />
+                );
+              })}
+            </div>
+
+            {products.length > 3 && (
+              <div className="products-toggle-wrap">
+                <button
+                  type="button"
+                  className="products-toggle-btn"
+                  onClick={handleToggleProducts}
+                >
+                  {showAllProducts
+                    ? "Prikaži manje proizvoda"
+                    : "Prikaži sve proizvode"}
+                </button>
+              </div>
+            )}
           </div>
-          {showPanel && panelProduct && panelRect && (
-            <ProductHoverPanel
-              product={panelProduct}
-              anchorRect={panelRect}
-              onMouseEnter={handlePanelEnter}
-              onMouseLeave={handlePanelLeave}
-              onClose={handleClosePanel}
-              isPinned={isPinned}
-            />
-          )}
         </div>
       </RevealOnScroll>
     </section>

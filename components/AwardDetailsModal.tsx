@@ -135,13 +135,11 @@ export default function AwardDetailsModal({
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    const returnFocusEl = returnFocusRef?.current;
     return () => {
       document.body.style.overflow = prev;
-      if (
-        returnFocusRef?.current &&
-        typeof returnFocusRef.current.focus === "function"
-      ) {
-        returnFocusRef.current.focus();
+      if (returnFocusEl && typeof returnFocusEl.focus === "function") {
+        returnFocusEl.focus();
       }
     };
   }, [returnFocusRef]);

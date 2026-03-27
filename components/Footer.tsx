@@ -9,14 +9,22 @@ export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[var(--background)]">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-lg font-semibold text-[var(--foreground)]">Meden Srbija</p>
-            <p className="mt-1 text-sm text-[var(--foreground)]/70">
+        <div className="flex flex-col items-center gap-8 text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
+          <div className="flex flex-col items-center sm:items-start">
+            <p
+              className="text-[26px] font-semibold leading-snug tracking-tight text-[var(--foreground)] [font-family:var(--font-cormorant)]"
+            >
+              Meden{" "}
+              <span className="italic text-[#c9920a]">Srbija</span>
+            </p>
+            <p className="mt-1 text-[14px] text-[rgba(240,232,216,0.45)] [font-family:var(--font-montserrat)]">
               Tradicionalni med i proizvodi od meda. Kvalitet i tradicija.
             </p>
           </div>
-          <div className="flex items-center gap-4" aria-label="Društvene mreže">
+          <div
+            className="flex items-center justify-center gap-4 sm:justify-start"
+            aria-label="Društvene mreže"
+          >
             <a
               href={FACEBOOK_URL}
               target="_blank"
@@ -51,15 +59,23 @@ export default function Footer() {
             </a>
           </div>
         </div>
-        <div className="mt-8 flex flex-col gap-4 border-t border-white/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-[var(--foreground)]/60">
-            © {currentYear} Meden Srbija. Sva prava zadržana.
+        <div className="mt-8 flex flex-col items-center gap-4 border-t border-white/10 pt-8 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+          <p className="text-[12px] text-[var(--foreground)]/60 [font-family:var(--font-montserrat)]">
+            © {currentYear}{" "}
+            <span className="text-[rgba(240,232,216,0.45)]">Meden Srbija</span>
+            . Sva prava zadržana.
           </p>
-          <nav className="flex gap-6" aria-label="Podnožje">
-            <Link href="#pocetna" className="text-xs text-[var(--foreground)]/60 hover:text-[var(--foreground)]">
+          <nav className="flex justify-center gap-6 sm:justify-start" aria-label="Podnožje">
+            <Link
+              href="#pocetna"
+              className="text-xs text-[var(--foreground)]/60 hover:text-[var(--foreground)]"
+            >
               Početna
             </Link>
-            <Link href="#kontakt" className="text-xs text-[var(--foreground)]/60 hover:text-[var(--foreground)]">
+            <Link
+              href="#kontakt"
+              className="text-xs text-[var(--foreground)]/60 hover:text-[var(--foreground)]"
+            >
               Kontakt
             </Link>
           </nav>

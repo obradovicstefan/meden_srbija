@@ -20,10 +20,9 @@ function getCurrentHash() {
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [currentHash, setCurrentHash] = useState("#pocetna");
+  const [currentHash, setCurrentHash] = useState(() => getCurrentHash());
 
   useEffect(() => {
-    setCurrentHash(getCurrentHash());
     const handleHashChange = () => setCurrentHash(getCurrentHash());
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
@@ -45,7 +44,7 @@ export default function Header() {
       if (activeId) setCurrentHash("#" + activeId);
     };
 
-    updateActive();
+    requestAnimationFrame(updateActive);
     window.addEventListener("scroll", updateActive, { passive: true });
     return () => window.removeEventListener("scroll", updateActive);
   }, []);
@@ -60,7 +59,10 @@ export default function Header() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full overflow-visible border-b border-amber-400/30 bg-black/60 backdrop-blur-[10px]" aria-label="Zaglavlje">
+    <header
+      className="sticky top-0 z-50 w-full overflow-visible border-b border-amber-400/30 bg-black/60 backdrop-blur-[10px]"
+      aria-label="Zaglavlje"
+    >
       {/* Backdrop for mobile menu – tap to close */}
       <div
         className={`mobile-backdrop fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden ${menuOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
@@ -68,7 +70,11 @@ export default function Header() {
         aria-hidden="true"
       />
       <div className="relative z-50 mx-auto flex h-14 min-h-14 max-w-7xl items-center justify-between overflow-visible px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="logo-link flex shrink-0 items-center overflow-visible pl-0 pr-3" aria-label="Meden Srbija – početna">
+        <Link
+          href="/"
+          className="logo-link flex shrink-0 items-center overflow-visible pl-0 pr-3"
+          aria-label="Meden Srbija – početna"
+        >
           <Image
             src="/images/logo/logo.svg"
             alt="Meden Srbija"
@@ -79,7 +85,10 @@ export default function Header() {
           />
         </Link>
 
-        <nav className="hidden md:flex md:items-center md:gap-10" aria-label="Glavna navigacija">
+        <nav
+          className="hidden md:flex md:items-center md:gap-10"
+          aria-label="Glavna navigacija"
+        >
           {navLinks.map(({ href, label }) => {
             const isActive = currentHash === href;
             return (
@@ -112,9 +121,19 @@ export default function Header() {
             aria-hidden
           >
             {menuOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             )}
           </svg>
         </button>

@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
+import "./Products.css";
 
 export type Product = {
   id: string;
@@ -16,19 +17,23 @@ type ProductCardProps = {
   product: Product;
   onMouseEnter?: (product: Product, rect: DOMRect) => void;
   onMouseLeave?: () => void;
-  onClickDetail?: (product: Product, rect: DOMRect) => void;
+  isHovered?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
 };
 
 function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const m = window.matchMedia("(max-width: 639px)");
-    setIsMobile(m.matches);
-    const listener = () => setIsMobile(m.matches);
-    m.addEventListener("change", listener);
-    return () => m.removeEventListener("change", listener);
-  }, []);
-  return isMobile;
+  const query = "(max-width: 639px)";
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      if (typeof window === "undefined") return () => {};
+      const m = window.matchMedia(query);
+      m.addEventListener("change", onStoreChange);
+      return () => m.removeEventListener("change", onStoreChange);
+    },
+    () => (typeof window === "undefined" ? false : window.matchMedia(query).matches),
+    () => false,
+  );
 }
 
 function ChevronDown() {
@@ -76,7 +81,9 @@ export default function ProductCard({
   product,
   onMouseEnter,
   onMouseLeave,
-  onClickDetail,
+  isHovered = false,
+  className,
+  style,
 }: ProductCardProps) {
   const isMobile = useIsMobile();
   const [expanded, setExpanded] = useState(false);
@@ -89,6 +96,12 @@ export default function ProductCard({
     hasLongDescription && (onMouseEnter ?? onMouseLeave)
   );
   const useExpandOnMobile = hasLongDescription && isMobile;
+
+  const tooltipParagraphs = (product.longDescription ?? "")
+    .split(/\n\n+/)
+    .filter(Boolean);
+
+  const showDesktopTooltip = hasLongDescription && !isMobile && isHovered;
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
     onMouseEnter?.(product, e.currentTarget.getBoundingClientRect());
@@ -113,32 +126,29 @@ export default function ProductCard({
 
   const expandId = `product-details-${product.id}`;
 
-  const handleClickDetail = () => {
-    if (articleRef.current) {
-      onClickDetail?.(product, articleRef.current.getBoundingClientRect());
-    }
-  };
-
   return (
     <article
       ref={articleRef}
       onMouseEnter={hasHoverPanel ? handleMouseEnter : undefined}
       onMouseLeave={onMouseLeave}
-      className={`group flex flex-col overflow-hidden rounded-xl bg-[#0d0d0d] outline-none transition-all duration-300 hover:-translate-y-1 ${hasHoverPanel ? "cursor-pointer" : ""}`}
-            style={{ border: "1px solid rgba(212,175,55,0.2)" }}
+      data-ms-product-card="true"
+      className={`product-card group flex flex-col overflow-hidden outline-none ${
+        hasHoverPanel ? "cursor-pointer" : ""
+      } ${isHovered ? "is-hovered" : ""} ${className ?? ""}`}
+      style={style}
       aria-labelledby={`product-${product.id}`}
       role="listitem"
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-t-xl">
+      <div className="card-img-wrap">
         <Image
           src={product.image}
           alt={product.name}
           fill
-          className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          className="object-cover"
           sizes="(max-width: 400px) 100vw, (max-width: 640px) 50vw, (max-width: 1024px) 33vw, 280px"
         />
       </div>
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
+      <div className="product-info flex flex-1 flex-col">
         {/* Title: expandable button on mobile (when longDescription), static h3 on desktop or when no longDescription */}
         {useExpandOnMobile ? (
           <button
@@ -160,15 +170,15 @@ export default function ProductCard({
         ) : (
           <h3
             id={`product-${product.id}`}
-            className="mb-2 text-xl font-bold text-white sm:text-[22px]"
+            className="product-name"
           >
             {product.name}
           </h3>
         )}
-        <p className="mb-3 line-clamp-3 text-sm leading-relaxed text-[#b0b0b0] sm:text-[15px] sm:leading-[1.6]">
+        <p className="product-short-description line-clamp-3">
           {product.description}
         </p>
-        <p className="mb-3 text-[15px] font-semibold leading-snug text-[#D4AF37] sm:text-base">
+        <p className="product-price">
           {product.weightVariants}
         </p>
 
@@ -204,7 +214,7 @@ export default function ProductCard({
                   id={expandId}
                   role="region"
                   aria-label={`Detalji: ${product.name}`}
-                  className="mt-4 space-y-3 border-t border-[rgba(212,175,55,0.2)] pt-4 text-sm leading-relaxed text-[#b0b0b0] sm:text-[15px]"
+                  className="mt-4 space-y-3 border-t border-[rgba(212,175,55,0.2)] pt-4 text-sm leading-relaxed text-[rgba(255,255,255,0.55)] sm:text-[15px]"
                 >
                   {(product.longDescription ?? "")
                     .split(/\n\n+/)
@@ -221,29 +231,39 @@ export default function ProductCard({
           </>
         )}
 
-        {/* Desktop: open detail panel on click when onClickDetail provided, else link to contact */}
-        {hasLongDescription && !isMobile &&
-          (onClickDetail ? (
-            <button
-              type="button"
-              onClick={handleClickDetail}
-              className={detailLinkClass}
-            >
-              Pređi za više →
-            </button>
-          ) : (
-            <a href="#kontakt" className={detailLinkClass}>
-              Pređi za više →
-            </a>
-          ))}
+        {/* Desktop: hover-only helper text */}
+        {hasLongDescription && !isMobile && (
+          <p className={detailLinkClass}>
+            Pređi mišem preko slike za više →
+          </p>
+        )}
 
-        {/* No longDescription: single link on all viewports */}
+        {/* No longDescription: informational text only (non-clickable) */}
         {!hasLongDescription && (
-          <a href="#kontakt" className={detailLinkClass}>
+          <p className={detailLinkClass}>
             Vidi detalje →
-          </a>
+          </p>
         )}
       </div>
+
+      {/* Desktop hover/click tooltip (in-card overlay) */}
+      {showDesktopTooltip && (
+        <div
+          className="product-tooltip"
+          role="complementary"
+          aria-label={`Detalji: ${product.name}`}
+        >
+          <div className="tooltip-name">{product.name}</div>
+          {product.weightVariants ? (
+            <div className="tooltip-price">{product.weightVariants}</div>
+          ) : null}
+          <div className="tooltip-text">
+            {tooltipParagraphs.map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
+          </div>
+        </div>
+      )}
     </article>
   );
 }

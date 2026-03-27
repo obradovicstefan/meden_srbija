@@ -32,9 +32,12 @@ export default function ExpandableBio({
           type="button"
           onClick={() => setExpanded((e) => !e)}
           aria-expanded={expanded}
-          className="touch-target mt-3 inline-flex items-center justify-center text-sm font-medium text-[var(--gold)] underline decoration-[var(--gold)]/50 underline-offset-2 transition-colors hover:text-amber-300 hover:decoration-[var(--gold)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d0d]"
+          className="bioToggleButton touch-target mt-3 inline-flex items-center justify-center text-sm font-medium text-[var(--gold)] underline decoration-[var(--gold)]/50 underline-offset-2 transition-colors hover:text-amber-300 hover:decoration-[var(--gold)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d0d]"
         >
-          {expanded ? "Pročitaj manje" : "Pročitaj više"}
+          {expanded ? "Zatvori" : "Pročitaj više"}
+          <span className={expanded ? "bioToggleArrow isOpen" : "bioToggleArrow"}>
+            ↓
+          </span>
         </button>
       )}
     </div>

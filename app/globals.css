@@ -2,7 +2,7 @@
 
 /* Dark theme default – aligned with .cursor/rules/meden-rules.mdc */
 :root {
-  --background: #0a0a0a;
+  --background: #0a0805;
   --foreground: #ededed;
   --gold: #d4af37;
   --gold-honey: #f4a460;
@@ -30,6 +30,23 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, sans-serif;
   overflow-x: hidden;
+}
+
+.bioToggleArrow {
+  display: inline-block;
+  margin-left: 6px;
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
+}
+
+.bioToggleArrow.isOpen {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bioToggleArrow {
+    transition: none;
+  }
 }
 
 /* Hero background – fixed on desktop for subtle parallax; scroll on mobile */

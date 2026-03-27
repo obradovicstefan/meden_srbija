@@ -1,0 +1,1125 @@
+#proizvodi {
+  /* Design tokens (spec-accurate) */
+  background: #0a0805;
+  --ms-background: #0a0805;
+  --ms-surface: #0f0d0b;
+  --ms-accent: #c9920a;
+  --ms-border: rgba(201, 146, 10, 0.12);
+  --ms-border-hover: rgba(201, 146, 10, 0.35);
+  --ms-border-featured: rgba(201, 146, 10, 0.18);
+  --ms-border-badge: rgba(201, 146, 10, 0.4);
+  --ms-text: rgba(255, 255, 255, 0.55);
+  --ms-text-muted: rgba(255, 255, 255, 0.38);
+}
+
+#proizvodi .ms-featured-editorial {
+  background: #191512;
+}
+
+/* Section header */
+#proizvodi .ms-products-header {
+  padding: 100px 0 120px;
+}
+
+#proizvodi .ms-products-header-inner {
+  margin: 0 auto;
+}
+
+#proizvodi .ms-products-heading {
+  margin-bottom: 80px;
+}
+
+#proizvodi .ms-products-header-toprow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+#proizvodi .ms-products-vertical-line {
+  width: 2px;
+  height: 52px;
+  background: #c9920a;
+  flex-shrink: 0;
+}
+
+#proizvodi .ms-products-toplabel {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  color: #c9920a;
+  text-transform: uppercase;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+#proizvodi .ms-products-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-transform: uppercase;
+  line-height: 1;
+  text-align: center;
+}
+
+#proizvodi .ms-products-divider {
+  width: 48px;
+  height: 1px;
+  background: #c9920a;
+  margin: 20px auto 16px;
+}
+
+#proizvodi .ms-products-subtitle {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  font-weight: 400;
+  text-align: center;
+}
+
+/* Featured card container */
+#proizvodi .featured-card {
+  background: #0f0d0b;
+  border: 1px solid rgba(201, 146, 10, 0.18);
+  position: relative;
+  margin-bottom: 80px;
+  overflow: visible;
+  border-radius: 0;
+}
+
+/* L-corner accents */
+#proizvodi .featured-card::before,
+#proizvodi .featured-card::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: rgba(201, 146, 10, 0.5);
+  border-style: solid;
+  pointer-events: none;
+  z-index: 2;
+}
+
+#proizvodi .featured-card::before {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+}
+
+#proizvodi .featured-card::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+/* Featured badge ("IZDVOJENO") */
+#proizvodi .featured-badge {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
+  color: #c9920a;
+  border: 1px solid rgba(201, 146, 10, 0.45);
+  padding: 5px 14px;
+  background: transparent;
+  text-transform: uppercase;
+  font-weight: 500;
+  border-radius: 0;
+}
+
+/* Featured card layout grid */
+#proizvodi .featured-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+}
+
+/* Left pane */
+#proizvodi .featured-img-pane {
+  position: relative;
+  min-height: 520px;
+  height: 100%;
+  align-self: stretch;
+  background: #080604;
+  display: block;
+  overflow: hidden;
+  border-radius: 0;
+}
+
+/* Existing subtle radial glow behind image */
+#proizvodi .featured-img-pane::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 55%,
+    rgba(201, 146, 10, 0.09) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Right-edge dissolve layer into card background (#0f0d0b) */
+#proizvodi .featured-img-pane::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 45%;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(15, 13, 11, 0.5) 60%,
+    rgba(15, 13, 11, 0.92) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ensure the <Image> fills above the glow */
+#proizvodi .featured-img-pane .ms-featured-image-wrap {
+  position: relative;
+  z-index: 0;
+}
+
+/* 4-edge vignette darkening, kept separate from glow/fade layers */
+#proizvodi .featured-img-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Bottom gold shimmer layer */
+#proizvodi .featured-img-shimmer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  background: linear-gradient(
+    to top,
+    rgba(201, 146, 10, 0.06) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Featured image-only scale motion */
+#proizvodi .featured-img-pane img,
+#proizvodi .featured-img-pane > span > img {
+  transform: scale(1.03);
+  transition: transform 8s ease;
+}
+
+#proizvodi .featured-card:hover .featured-img-pane img,
+#proizvodi .featured-card:hover .featured-img-pane > span > img {
+  transform: scale(1.08);
+}
+
+/* Right pane */
+#proizvodi .featured-content {
+  padding: 60px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Pre-label row */
+#proizvodi .featured-prelabel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+#proizvodi .featured-prelabel-line {
+  width: 2px;
+  height: 44px;
+  background: #c9920a;
+  flex-shrink: 0;
+}
+
+#proizvodi .featured-prelabel-text {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.28em;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+/* Featured heading */
+#proizvodi .featured-heading {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2.2rem, 3.5vw, 3.2rem);
+  font-weight: 700;
+  color: #c9920a;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.05;
+  margin-bottom: 10px;
+}
+
+/* Featured tagline */
+#proizvodi .featured-tagline {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  font-weight: 300;
+  margin-bottom: 28px;
+}
+
+#proizvodi .featured-tagline em {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Thin divider under tagline */
+#proizvodi .featured-divider-thin {
+  width: 36px;
+  height: 1px;
+  background: rgba(201, 146, 10, 0.4);
+  margin-bottom: 28px;
+}
+
+/* Body paragraphs block */
+#proizvodi .featured-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+#proizvodi .featured-body p {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 400;
+  margin: 0;
+}
+
+#proizvodi .featured-body > p:first-of-type {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.7;
+}
+
+#proizvodi .featured-body > p:nth-of-type(2),
+#proizvodi .featured-body > p:nth-of-type(3) {
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.8;
+}
+
+#proizvodi .featured-body > p:last-of-type {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1rem;
+  font-weight: 400;
+  font-style: italic;
+  color: rgba(201, 146, 10, 0.8);
+  line-height: 1.6;
+}
+
+#proizvodi .featured-body p strong {
+  color: #c9920a;
+  font-weight: 600;
+  font-style: italic;
+}
+
+/* Brand name emphasis inside paragraphs */
+#proizvodi .featured-brandname {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  color: #c9920a;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  font-style: normal;
+  text-transform: uppercase;
+  text-shadow: 0 0 14px rgba(201, 146, 10, 0.24);
+}
+
+/* Featured typography refinement (content-only scope) */
+#proizvodi .ms-feat-tagline {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+}
+
+#proizvodi .ms-feat-body-statement {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
+}
+
+#proizvodi .ms-feat-body-divider {
+  height: 12px;
+  width: 100%;
+}
+
+#proizvodi .ms-feat-tasting-notes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#proizvodi .ms-feat-tasting-notes li {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.65;
+  padding-left: 18px;
+  position: relative;
+}
+
+#proizvodi .ms-feat-tasting-notes li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: rgba(201, 146, 10, 0.55);
+  font-weight: 300;
+}
+
+#proizvodi .ms-feat-body-intrigue {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.7;
+}
+
+#proizvodi .ms-feat-body-intrigue strong {
+  color: #c9920a;
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: 0.04em;
+}
+
+#proizvodi .ms-feat-body-signature {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 400;
+  font-style: italic;
+  color: rgba(201, 146, 10, 0.8);
+  line-height: 1.6;
+}
+
+#proizvodi .ms-feat-body-signature .ms-brand {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.1em;
+  color: #c9920a;
+}
+
+/* Separator between featured paragraphs 1 and 2 */
+#proizvodi .featured-paragraph-separator {
+  width: 40px;
+  height: 1px;
+  background: rgba(201, 146, 10, 0.3);
+  margin: -4px auto 0;
+}
+
+/* Primary CTA button */
+#proizvodi .btn-primary {
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  border: 1px solid rgba(201, 146, 10, 0.4);
+  color: #c9920a;
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 15px 36px;
+  border-radius: 0;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: border-color 0.35s ease;
+}
+
+#proizvodi .btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Spec requests linear-gradient sheen here */
+  background: linear-gradient(
+    105deg,
+    transparent 25%,
+    rgba(201, 146, 10, 0.1) 50%,
+    transparent 75%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.55s ease;
+}
+
+#proizvodi .btn-primary:hover::before {
+  transform: translateX(120%);
+}
+
+#proizvodi .btn-primary:hover {
+  border-color: rgba(201, 146, 10, 0.7);
+}
+
+/* Grid section subheader */
+#proizvodi .grid-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36px;
+}
+
+#proizvodi .grid-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#proizvodi .grid-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(201, 146, 10, 0.12);
+  margin-left: 24px;
+}
+
+/* Product cards grid */
+#proizvodi .ms-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+#proizvodi .products-toggle-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+#proizvodi .products-toggle-btn {
+  background: transparent;
+  border: 1px solid rgba(201, 146, 10, 0.4);
+  color: #c9920a;
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 0;
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    color 0.25s ease;
+}
+
+#proizvodi .products-toggle-btn:hover {
+  border-color: rgba(201, 146, 10, 0.65);
+}
+
+#proizvodi .products-toggle-btn:focus-visible {
+  outline: 2px solid rgba(201, 146, 10, 0.6);
+  outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+  #proizvodi .ms-products-header {
+    padding: 80px 0 100px;
+  }
+
+  #proizvodi .ms-products-header {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
+  #proizvodi .ms-products-heading {
+    margin-bottom: 56px;
+  }
+
+  #proizvodi .ms-products-vertical-line {
+    height: 38px;
+  }
+
+  /* Featured card — stack vertically, image on top */
+  #proizvodi .featured-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #proizvodi .featured-card {
+    margin-bottom: 60px;
+  }
+
+  #proizvodi .featured-img-pane {
+    min-height: 380px;
+  }
+
+  #proizvodi .featured-content {
+    padding: 44px 40px 48px;
+  }
+
+  #proizvodi .featured-heading {
+    font-size: clamp(2rem, 5vw, 2.8rem);
+  }
+
+  #proizvodi .featured-badge {
+    top: 16px;
+    right: 16px;
+  }
+
+  /* Grid — 2 columns */
+  #proizvodi .ms-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 860px) {
+  #proizvodi .ms-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  #proizvodi .ms-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  #proizvodi .ms-products-header {
+    padding: 64px 0 80px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  /* Header */
+  #proizvodi .ms-products-heading {
+    margin-bottom: 40px;
+  }
+
+  #proizvodi .ms-products-header-toprow {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  #proizvodi .ms-products-vertical-line {
+    height: 28px;
+  }
+
+  #proizvodi .ms-products-toplabel {
+    font-size: 0.52rem;
+    letter-spacing: 0.25em;
+  }
+
+  #proizvodi .ms-products-title {
+    letter-spacing: 0.06em;
+  }
+
+  #proizvodi .ms-products-subtitle {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+  }
+
+  #proizvodi .ms-products-divider {
+    margin: 14px auto 12px;
+  }
+
+  /* Featured card */
+  #proizvodi .featured-card {
+    margin-bottom: 48px;
+  }
+
+  #proizvodi .featured-img-pane {
+    min-height: 300px;
+  }
+
+  /* Content pane */
+  #proizvodi .featured-content {
+    padding: 32px 24px 36px;
+  }
+
+  #proizvodi .featured-prelabel {
+    margin-bottom: 14px;
+  }
+
+  #proizvodi .featured-prelabel-line {
+    height: 32px;
+  }
+
+  #proizvodi .featured-prelabel-text {
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+  }
+
+  #proizvodi .featured-heading {
+    font-size: clamp(1.9rem, 7vw, 2.4rem);
+    margin-bottom: 8px;
+  }
+
+  #proizvodi .featured-tagline {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    margin-bottom: 20px;
+  }
+
+  #proizvodi .featured-divider-thin {
+    margin-bottom: 20px;
+  }
+
+  #proizvodi .featured-body {
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  #proizvodi .featured-body p {
+    font-size: 0.8rem;
+    line-height: 1.75;
+  }
+
+  /* Button — full width on mobile */
+  #proizvodi .btn-primary {
+    align-self: stretch;
+    text-align: center;
+    padding: 16px 24px;
+    font-size: 0.62rem;
+  }
+
+  /* Badge */
+  #proizvodi .featured-badge {
+    top: 14px;
+    right: 14px;
+    font-size: 0.48rem;
+    padding: 4px 10px;
+  }
+
+  /* Grid — single column */
+  #proizvodi .ms-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Cards */
+  #proizvodi .card-img-wrap {
+    aspect-ratio: 16 / 9;
+  }
+
+  #proizvodi .product-info {
+    padding: 16px 18px 18px;
+  }
+
+  #proizvodi .product-name {
+    font-size: 1.1rem;
+  }
+
+  #proizvodi .product-short-description {
+    font-size: 0.68rem;
+  }
+
+  #proizvodi .product-price {
+    font-size: 0.6rem;
+  }
+
+  /* Tooltip */
+  #proizvodi .product-tooltip {
+    padding: 18px;
+  }
+
+  #proizvodi .tooltip-name {
+    font-size: 1rem;
+  }
+
+  #proizvodi .tooltip-price {
+    font-size: 0.56rem;
+  }
+
+  #proizvodi .tooltip-text {
+    font-size: 0.68rem;
+  }
+
+  /* Grid header */
+  #proizvodi .grid-title {
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+  }
+
+  /* Mobile-only reduced stagger (overrides inline animationDelay) */
+  #proizvodi .ms-grid .product-card.ms-products-card-animate:nth-child(1) {
+    animation-delay: 0.05s !important;
+  }
+  #proizvodi .ms-grid .product-card.ms-products-card-animate:nth-child(2) {
+    animation-delay: 0.1s !important;
+  }
+  #proizvodi .ms-grid .product-card.ms-products-card-animate:nth-child(3) {
+    animation-delay: 0.15s !important;
+  }
+  #proizvodi .ms-grid .product-card.ms-products-card-animate:nth-child(4) {
+    animation-delay: 0.2s !important;
+  }
+  #proizvodi .ms-grid .product-card.ms-products-card-animate:nth-child(5) {
+    animation-delay: 0.25s !important;
+  }
+  #proizvodi .ms-grid .product-card.ms-products-card-animate:nth-child(6) {
+    animation-delay: 0.3s !important;
+  }
+  #proizvodi .ms-grid .product-card.ms-products-card-animate:nth-child(n + 7) {
+    animation-delay: 0.3s !important;
+  }
+
+  /* Mobile expand/collapse animation for cards beyond first 3 */
+  #proizvodi .ms-mobile-extra-enter {
+    animation: msExtraEnter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  #proizvodi .ms-mobile-extra-exit {
+    animation: msExtraExit 0.32s ease both;
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 380px) {
+  #proizvodi .ms-products-header {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  #proizvodi .featured-content {
+    padding: 28px 18px 30px;
+  }
+
+  #proizvodi .featured-heading {
+    font-size: 1.8rem;
+  }
+
+  #proizvodi .ms-products-toplabel {
+    font-size: 0.46rem;
+    letter-spacing: 0.18em;
+  }
+
+  #proizvodi .ms-products-vertical-line {
+    height: 22px;
+  }
+}
+
+/* Product card */
+#proizvodi .product-card {
+  position: relative;
+  overflow: hidden;
+  background: #0c0a08;
+  border: 1px solid rgba(201, 146, 10, 0.1);
+  border-radius: 0;
+  transition: border-color 0.35s ease;
+  cursor: pointer;
+}
+
+#proizvodi .product-card:hover {
+  border-color: rgba(201, 146, 10, 0.35);
+}
+
+/* Card image area */
+#proizvodi .card-img-wrap {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #080604;
+  border-radius: 0;
+}
+
+/* Hover gold wash */
+#proizvodi .card-img-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(201, 146, 10, 0.04);
+  transition: opacity 0.35s ease;
+  opacity: 0;
+}
+
+#proizvodi .product-card:hover .card-img-wrap::after {
+  opacity: 1;
+}
+
+/* Product info block */
+#proizvodi .product-info {
+  padding: 20px 22px 22px;
+}
+
+#proizvodi .product-name {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+#proizvodi .product-short-description {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.6;
+  margin-bottom: 12px;
+  font-weight: 400;
+}
+
+#proizvodi .product-price {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: #c9920a;
+  font-weight: 500;
+}
+
+/* In-card hover tooltip overlay */
+#proizvodi .product-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(10, 8, 5, 0.97);
+  border: 1px solid rgba(201, 146, 10, 0.22);
+  border-radius: 0;
+  padding: 22px;
+  z-index: 60;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s ease;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+}
+
+/* Hover state */
+#proizvodi .product-card:hover .product-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Pinned state (wired from Products/ProductCard later) */
+#proizvodi .product-card.is-hovered .product-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+#proizvodi .product-card.is-pinned .product-tooltip,
+#proizvodi .product-card[data-pinned="true"] .product-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+#proizvodi .tooltip-name {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+#proizvodi .tooltip-price {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: #c9920a;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+#proizvodi .tooltip-text {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.62);
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+/* Tooltip close button (pinned mode) */
+#proizvodi .tooltip-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(201, 146, 10, 0.25);
+  background: rgba(10, 8, 5, 0.55);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 0;
+}
+
+#proizvodi .tooltip-close:hover {
+  border-color: rgba(201, 146, 10, 0.6);
+}
+
+#proizvodi .tooltip-close:focus-visible {
+  outline: 2px solid rgba(201, 146, 10, 0.55);
+  outline-offset: 2px;
+}
+
+/* Touch tooltip close button */
+#proizvodi .ms-tooltip-close {
+  display: none;
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 4px;
+}
+
+/* Entrance animations: spec-like fadeUp (unique name to avoid keyframe collisions) */
+@keyframes productsFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes msExtraEnter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes msExtraExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+#proizvodi .ms-animate-fadeup {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: productsFadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Stagger helpers (set --ms-index on each card wrapper) */
+#proizvodi .ms-products-featured-animate {
+  animation-delay: 0.2s;
+}
+
+/* Spec: first card at 0.1s, max 0.8s */
+#proizvodi .ms-products-card-animate {
+  animation-delay: min(calc(0.1s + (var(--ms-index, 0) * 0.1s)), 0.8s);
+}
+
+/* Bottom scroll hint */
+#proizvodi .products-scroll-hint {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 60px;
+}
+
+#proizvodi .products-scroll-hint-line {
+  width: 40px;
+  height: 1px;
+  background: rgba(201, 146, 10, 0.2);
+}
+
+#proizvodi .products-scroll-hint-text {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.32);
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #proizvodi .ms-animate-fadeup {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  #proizvodi .ms-mobile-extra-enter,
+  #proizvodi .ms-mobile-extra-exit {
+    animation: none;
+  }
+}
+
+/* Touch devices: disable hover-open, rely on .is-open */
+@media (hover: none) {
+  #proizvodi .product-card:hover .product-tooltip {
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+  }
+
+  #proizvodi .product-card.is-open .product-tooltip {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* Tap feedback */
+  #proizvodi .product-card:active {
+    border-color: rgba(201, 146, 10, 0.4);
+  }
+
+  #proizvodi .btn-primary:active {
+    border-color: rgba(201, 146, 10, 0.7);
+  }
+
+  #proizvodi .ms-tooltip-close {
+    display: block;
+  }
+}

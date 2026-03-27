@@ -12,7 +12,12 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: { name?: string; email?: string; message?: string };
+  let body: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    message?: string;
+  };
   try {
     body = await request.json();
   } catch {
@@ -24,6 +29,8 @@ export async function POST(request: Request) {
 
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const email = typeof body.email === "string" ? body.email.trim() : "";
+  const phone =
+    typeof body.phone === "string" ? body.phone.trim() : "";
   const message = typeof body.message === "string" ? body.message.trim() : "";
 
   if (!message || message.length < 10) {
@@ -45,7 +52,7 @@ export async function POST(request: Request) {
   const resend = new Resend(apiKey);
 
   try {
-    const { data, error } = await resend.emails.send({
+    const { error } = await resend.emails.send({
       from,
       to: TO_EMAIL,
       replyTo: email,
@@ -53,8 +60,9 @@ export async function POST(request: Request) {
       text: [
         message,
         "",
-        `Posiljalac: ${name || "(nije navedeno)"}`,
+        `Pošiljalac: ${name || "(nije navedeno)"}`,
         `E-pošta: ${email}`,
+        phone ? `Telefon: ${phone}` : "Telefon: (nije naveden)",
       ].join("\n"),
     });
 

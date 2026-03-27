@@ -78,13 +78,11 @@ export default function ImageLightbox({
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    const returnFocusEl = returnFocusRef?.current;
     return () => {
       document.body.style.overflow = prev;
-      if (
-        returnFocusRef?.current &&
-        typeof returnFocusRef.current.focus === "function"
-      ) {
-        returnFocusRef.current.focus();
+      if (returnFocusEl && typeof returnFocusEl.focus === "function") {
+        returnFocusEl.focus();
       }
     };
   }, [returnFocusRef]);
@@ -180,7 +178,7 @@ export default function ImageLightbox({
     <>
       <div
         ref={containerRef}
-        className={`zoom-overlay fixed inset-0 flex flex-col items-center bg-black/95 p-3 pt-16 transition-opacity duration-300 sm:p-4 sm:pt-20 backdrop-blur-[10px] ${isClosing ? "opacity-0" : "opacity-100"}`}
+        className={`zoom-overlay fixed inset-0 flex items-center justify-center bg-black/35 p-3 transition-opacity duration-300 sm:p-4 backdrop-blur-[14px] ${isClosing ? "opacity-0" : "opacity-100"}`}
         style={{ zIndex }}
         role="dialog"
         aria-modal="true"
@@ -190,7 +188,7 @@ export default function ImageLightbox({
         <button
           type="button"
           onClick={handleClose}
-          className="absolute right-3 top-3 z-10 flex min-h-[52px] min-w-[52px] items-center justify-center rounded-full bg-[rgba(212,175,55,0.95)] text-[#1a1a1a] shadow-lg transition-[transform,opacity] duration-200 hover:scale-110 hover:bg-[#D4AF37] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:right-4 sm:top-4 sm:min-h-[48px] sm:min-w-[48px]"
+          className="absolute right-3 top-3 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center border border-[#c9920a]/40 bg-[#080604]/70 text-[#f0e8d8] shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition-all duration-300 ease-in-out hover:border-[#c9920a]/80 hover:bg-[#c9920a]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9920a] focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:right-4 sm:top-4 sm:min-h-[48px] sm:min-w-[48px]"
           aria-label="Zatvori"
         >
           <svg
@@ -211,7 +209,11 @@ export default function ImageLightbox({
         <button
           type="button"
           onClick={toggleLens}
-          className="absolute left-3 top-3 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border-2 border-[#D4AF37]/40 bg-black/50 text-[#D4AF37] transition-colors hover:bg-[rgba(212,175,55,0.2)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:left-4 sm:top-4 sm:min-h-[48px] sm:min-w-[48px]"
+          className={`absolute left-3 top-3 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border-2 transition-all duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:left-4 sm:top-4 sm:min-h-[48px] sm:min-w-[48px] ${
+            lensActive
+              ? "border-[#D4AF37] bg-[#D4AF37]/90 text-[#1a1a1a] shadow-[0_8px_24px_rgba(212,175,55,0.35)]"
+              : "border-[#D4AF37]/40 bg-black/50 text-[#D4AF37] hover:bg-[rgba(212,175,55,0.2)]"
+          }`}
           aria-label={
             lensActive
               ? "Isključi lupu za čitanje"
@@ -223,7 +225,7 @@ export default function ImageLightbox({
         </button>
 
         <div
-          className="zoom-content-in mt-4 flex max-h-[95vh] max-w-[95vw] flex-1 items-center justify-center overflow-hidden rounded-xl bg-white p-5 shadow-[0_20px_100px_rgba(0,0,0,0.8)]"
+          className="zoom-content-in flex max-h-[95vh] max-w-[95vw] items-center justify-center overflow-hidden rounded-xl bg-transparent p-0 shadow-none"
           onClick={(e) => e.stopPropagation()}
           onMouseMove={lensActive ? handleImageMouseMove : undefined}
           onMouseLeave={lensActive ? handleImageMouseLeave : undefined}
@@ -231,11 +233,12 @@ export default function ImageLightbox({
         >
           <TransformWrapper
             initialScale={1}
-            minScale={0.5}
-            maxScale={4}
-            doubleClick={{ mode: "toggle", step: 0.7 }}
-            panning={{ velocityDisabled: true }}
-            wheel={{ step: 0.1 }}
+            minScale={1}
+            maxScale={1}
+            doubleClick={{ disabled: true }}
+            panning={{ disabled: true }}
+            wheel={{ disabled: true }}
+            pinch={{ disabled: true }}
           >
             <TransformComponent
               wrapperStyle={{
@@ -259,7 +262,7 @@ export default function ImageLightbox({
                 ref={imageRef}
                 src={src}
                 alt={alt}
-                className="max-h-[85vh] w-full object-contain object-top select-none"
+                className="max-h-[85vh] w-full object-contain object-center select-none"
                 draggable={false}
                 style={{ touchAction: "none" }}
               />

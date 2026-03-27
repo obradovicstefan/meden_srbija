@@ -1,0 +1,542 @@
+/* Fonts */
+.hero {
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+}
+
+/* Section */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #0a0805;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(84px, 14vh, 160px);
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 8, 5, 0) 0%,
+    rgba(10, 8, 5, 0.88) 70%,
+    #0a0805 100%
+  );
+}
+
+/* Fallback glow when video is missing */
+.hero.hero--no-video::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(201, 146, 10, 0.4) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 70% 80%,
+      rgba(201, 146, 10, 0.3) 0%,
+      transparent 60%
+    ),
+    #0a0805;
+}
+
+.hero.hero--video::before {
+  content: none;
+}
+
+/* Video */
+.heroBg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+/* Overlays */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.2) 35%,
+    rgba(0, 0, 0, 0.2) 65%,
+    rgba(0, 0, 0, 0.75) 100%
+  );
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.4) 0%,
+    transparent 20%,
+    transparent 80%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+
+/* Nav */
+.nav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 4rem;
+  animation: fadeDown 1s ease 0.2s both;
+}
+
+.hero-logo-link {
+  text-decoration: none;
+}
+
+.hero-logo-text {
+  font-family: var(--font-cormorant), "Cormorant Garamond", serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #c9920a;
+  font-weight: 500;
+}
+
+.navLinks {
+  display: flex;
+  gap: 3rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navLinks a {
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  font-weight: 400;
+  transition: color 0.3s;
+}
+
+.navLinks a:hover,
+.navLinks a.active {
+  color: #c9920a;
+}
+
+/* Content */
+.content {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0 2rem;
+}
+
+.goldLine {
+  width: 1px;
+  height: 3rem;
+  background: linear-gradient(to bottom, transparent, #c9920a);
+  margin-bottom: 2rem;
+  animation: fadeUp 1s ease 0.4s both;
+}
+
+.eyebrow {
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #c9920a;
+  margin-bottom: 1.75rem;
+  font-weight: 400;
+  animation: fadeUp 1s ease 0.6s both;
+}
+
+.heading {
+  font-family: var(--font-cormorant), "Cormorant Garamond", serif;
+  font-size: clamp(4.5rem, 9vw, 9rem);
+  font-weight: 300;
+  line-height: 0.9;
+  color: #fff;
+  letter-spacing: -0.02em;
+  animation: fadeUp 1s ease 0.8s both;
+  margin: 0;
+}
+
+.heading em {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.subtitle {
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 2rem;
+  font-weight: 300;
+  line-height: 2.2;
+  animation: fadeUp 1s ease 1s both;
+}
+
+/* CTAs */
+.ctaGroup {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 3.5rem;
+  align-items: center;
+  animation: fadeUp 1s ease 1.2s both;
+}
+
+.btnPrimary {
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #0a0805;
+  background: #c9920a;
+  border: none;
+  border-radius: 0;
+  padding: 1.1rem 2.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btnPrimary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease;
+}
+
+.btnPrimary:hover::before {
+  transform: translateX(0);
+}
+
+.btnSecondary {
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #c9920a;
+  background: transparent;
+  border: 1px solid rgba(201, 146, 10, 0.4);
+  border-radius: 0;
+  padding: 1.1rem 2.5rem;
+  cursor: pointer;
+  font-weight: 400;
+  transition: border-color 0.3s, color 0.3s, transform 0.2s;
+}
+
+.btnSecondary:hover {
+  border-color: #c9920a;
+  color: #c9920a;
+  transform: translateY(-1px);
+}
+
+/* Bottom bar */
+.bottom {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 2rem 4rem;
+  animation: fadeUp 1s ease 1.4s both;
+}
+
+.scrollHint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.scrollHint span {
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 300;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.scrollLine {
+  width: 1px;
+  height: 3rem;
+  background: linear-gradient(to bottom, #c9920a, transparent);
+  animation: scrollPulse 2.5s ease-in-out infinite;
+}
+
+.meta {
+  text-align: right;
+}
+
+.meta p {
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 300;
+  line-height: 2;
+  margin: 0;
+}
+
+.meta strong {
+  color: rgba(201, 146, 10, 0.6);
+  font-weight: 400;
+}
+
+/* Corner accent */
+.cornerAccent {
+  position: absolute;
+  bottom: 2rem;
+  right: 3.5rem;
+  width: 70px;
+  height: 70px;
+  border-bottom: 1px solid rgba(201, 146, 10, 0.2);
+  border-right: 1px solid rgba(201, 146, 10, 0.2);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Animations */
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scrollPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ── Mobile: tablet ───────────────────────────── */
+@media (max-width: 768px) {
+  .hero {
+    height: 100svh;
+    min-height: 500px;
+  }
+
+  /* Nav */
+  .nav {
+    padding: 1.5rem 2rem;
+    animation: fadeDown 1s ease 0.2s both;
+  }
+
+  .navLinks {
+    display: none; /* hidden on mobile — hamburger handled separately if needed */
+  }
+
+  /* Video framing */
+  .heroBg {
+    object-position: 60% center;
+  }
+
+  /* Overlay adjustment for legibility */
+  .overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.65) 0%,
+      rgba(0, 0, 0, 0.3) 35%,
+      rgba(0, 0, 0, 0.3) 65%,
+      rgba(0, 0, 0, 0.85) 100%
+    );
+  }
+
+  /* Content */
+  .content {
+    padding: 0 1.5rem;
+  }
+
+  .goldLine {
+    height: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .eyebrow {
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    margin-bottom: 1.25rem;
+  }
+
+  .heading {
+    font-size: clamp(3.5rem, 14vw, 5.5rem);
+    line-height: 0.92;
+  }
+
+  .subtitle {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    margin-top: 1.5rem;
+    line-height: 2;
+  }
+
+  .ctaGroup {
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+    text-align: center;
+    padding: 1rem 2rem;
+    font-size: 0.58rem;
+  }
+
+  /* Bottom bar */
+  .bottom {
+    padding: 1.5rem 2rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    text-align: center;
+  }
+
+  .meta {
+    text-align: center;
+  }
+
+  .meta p {
+    font-size: 0.5rem;
+  }
+
+  .scrollHint span {
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+
+  /* Corner accent — hide on mobile, too cramped */
+  .cornerAccent {
+    display: none;
+  }
+}
+
+/* ── Mobile: small phones ─────────────────────── */
+@media (max-width: 480px) {
+  .nav {
+    padding: 1.25rem 1.25rem;
+  }
+
+  .content {
+    padding: 0 1.25rem;
+  }
+
+  .goldLine {
+    height: 2rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .eyebrow {
+    font-size: 0.5rem;
+    letter-spacing: 0.25em;
+    margin-bottom: 1rem;
+  }
+
+  .heading {
+    font-size: clamp(3rem, 16vw, 4.5rem);
+    line-height: 0.95;
+  }
+
+  .subtitle {
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    margin-top: 1.25rem;
+  }
+
+  .ctaGroup {
+    max-width: 280px;
+    gap: 0.85rem;
+    margin-top: 2rem;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    padding: 0.9rem 1.5rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+  }
+
+  .bottom {
+    padding: 1.25rem 1.25rem;
+    gap: 1rem;
+  }
+
+  .scrollHint {
+    gap: 0.5rem;
+  }
+
+  .scrollHint span {
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+  }
+
+  .scrollLine {
+    height: 2.5rem;
+  }
+
+  .meta p {
+    font-size: 0.45rem;
+    letter-spacing: 0.15em;
+    line-height: 1.8;
+  }
+}
+

@@ -1,19 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
-import RevealOnScroll from "./RevealOnScroll";
-import AwardDetailsModal from "./AwardDetailsModal";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
+import ImageLightbox from "./ImageLightbox";
 
-const SWIPE_THRESHOLD_PX = 50;
-const AUTO_ADVANCE_MS = 5000;
+type AwardItem = {
+  id: number;
+  name: ReactNode;
+  year: string;
+  category: string;
+  location: string;
+  tag: string;
+  description: string;
+  imageSrc: string;
+  imageAlt: string;
+};
 
 export type Award = {
   src: string;
   alt: string;
   name: string;
   longDescription?: string;
-  /** Optional, e.g. "Zahvalnost pretočena u priznanje." */
   subtitle?: string;
   image?: {
     thumbnail?: string;
@@ -22,335 +31,357 @@ export type Award = {
   };
 };
 
-const awards: Award[] = [
+const awards: AwardItem[] = [
   {
-    src: "/images/awards/Diploma2025.webp",
-    alt: "Beogradski Pobednik 2025",
-    name: "Beogradski Pobednik 2025.",
-    subtitle: "Zahvalnost pretočena u priznanje.",
-    longDescription: `Zahvalnost pretočena u priznanje.
-
-U prestižnom ambijentu hotela Balkan u Beogradu, Poljoprivredno gazdinstvo Stanković ponosno je primilo priznanje „Beogradski pobednik" – za najuspešnije poslovanje u oblasti pčelarstva i za stvaranje izuzetnog brenda Meden.
-
-Ova nagrada ne simbolizuje samo trud, već i ljubav prema prirodi, posvećenost kvalitetu i želju da med – kao najčistiji dar prirode – predstavimo na način koji zaslužuje.
-
-Hvala svima koji prepoznaju naš rad.
-
-Ovo je tek početak.`,
+    id: 1,
+    name: (
+      <>
+        <em>Beogradski Pobednik</em> 2025.
+      </>
+    ),
+    year: "2025",
+    category: "Pčelarstvo",
+    location: "Beograd",
+    tag: "Nacionalno priznanje",
+    description:
+      "Priznanje za najuspesnije poslovanje u oblasti pcelarstva i izgradnju brenda Meden.",
+    imageSrc: "/images/awards/Diploma2025.webp",
+    imageAlt: "Beogradski Pobednik 2025",
   },
   {
-    src: "/images/awards/nagradaOskar.webp",
-    alt: "Prvi Oskar Srbije 2022",
-    name: "Prvi Oskar Srbije 2022.",
-    longDescription: `Dodeljen u Beogradu 2022. godine u hotelu „RADISSON COLLECTION BELGRADE".
-
-Kao nagradu i priznanje Poljoprivrednom gazdinstvu „Stanković" za najuspešnije poslovanje u oblasti proizvodnje i distribucije meda i pčelinjih proizvoda na teritoriji cele Srbije.`,
+    id: 2,
+    name: (
+      <>
+        Prvi Oskar Srbije <em>2022.</em>
+      </>
+    ),
+    year: "2022",
+    category: "Pčelarstvo",
+    location: "Beograd",
+    tag: "Poslovna izvrsnost",
+    description:
+      "Dodeljeno za najuspesnije poslovanje u proizvodnji i distribuciji meda i pcelinjih proizvoda.",
+    imageSrc: "/images/awards/nagradaOskar.webp",
+    imageAlt: "Prvi Oskar Srbije 2022",
   },
   {
-    src: "/images/awards/result.webp",
-    alt: "Izveštaj o kvalitetu uzoraka meda",
-    name: "Izveštaj o kvalitetu uzoraka meda",
-    longDescription: `Ispitivanje uzoraka meda iz Poljoprivrednog gazdinstva Stankovič je ocenjeno sa najvišom ocenom i dodeljeno zlatno priznanje za kvalitet bagremovog meda.`,
+    id: 3,
+    name: (
+      <>
+        Izvestaj o kvalitetu <em>uzoraka meda</em>
+      </>
+    ),
+    year: "2020",
+    category: "Laboratorijska analiza",
+    location: "Srbija",
+    tag: "Zlatno priznanje",
+    description:
+      "Ispitivanje je ocenjeno najvisom ocenom i dodeljeno je zlatno priznanje za kvalitet bagremovog meda.",
+    imageSrc: "/images/awards/result.webp",
+    imageAlt: "Izvestaj o kvalitetu uzoraka meda",
   },
   {
-    src: "/images/awards/summit.webp",
-    alt: "Summit Success 2022",
-    name: "Summit Success 2022.",
-    longDescription: `Nagrada dodeljena 2022. godine u Beogradu u hotelu „HYATT REGENCY BELGRADE" za višegodišnji uzastopni uspeh i poslovanje Poljoprivrednog gazdinstva Stanković.`,
+    id: 4,
+    name: (
+      <>
+        Summit Success <em>2022.</em>
+      </>
+    ),
+    year: "2022",
+    category: "Pčelarstvo",
+    location: "Beograd",
+    tag: "Hotelska dodela",
+    description:
+      "Nagrada za visegodisnji uzastopni uspeh i stabilno poslovanje poljoprivrednog gazdinstva Stankovic.",
+    imageSrc: "/images/awards/summit.webp",
+    imageAlt: "Summit Success 2022",
   },
   {
-    src: "/images/awards/tetovoAcacia.webp",
-    alt: "Tetovo Honey Awards 2020 - Bagremov med",
-    name: "Tetovo Honey Awards 2020. - Bagremov med",
-    longDescription: `Nagrada dodeljena 2020. godine u Tetovu (Severozapadna Makedonija) kao priznanje za kvalitet bagremovog meda visoko plasiranog na trećem mestu na području balkana.`,
+    id: 5,
+    name: (
+      <>
+        Tetovo Honey Awards <em>Bagrem 2020.</em>
+      </>
+    ),
+    year: "2020",
+    category: "Pčelarstvo",
+    location: "Tetovo",
+    tag: "Balkansko takmicenje",
+    description:
+      "Priznanje za kvalitet bagremovog meda sa visokim plasmanom u regionalnoj konkurenciji.",
+    imageSrc: "/images/awards/tetovoAcacia.webp",
+    imageAlt: "Tetovo Honey Awards 2020 - Bagremov med",
   },
   {
-    src: "/images/awards/tetovoMeadow.webp",
-    alt: "Tetovo Honey Awards 2020 - Livadski med",
-    name: "Tetovo Honey Awards 2020. - Livadski med",
-    longDescription: `Nagrada dodeljena 2020. godine u Tetovu (Severozapadna Makedonija) kao priznanje za kvalitet livadskog meda sa zasluženim prvim mestom i zlatnom medaljom za područje celog balkana.`,
+    id: 6,
+    name: (
+      <>
+        Tetovo Honey Awards <em>Livadski 2020.</em>
+      </>
+    ),
+    year: "2020",
+    category: "Pčelarstvo",
+    location: "Tetovo",
+    tag: "Zlatna medalja",
+    description:
+      "Prvo mesto i zlatna medalja za kvalitet livadskog meda na podrucju celog Balkana.",
+    imageSrc: "/images/awards/tetovoMeadow.webp",
+    imageAlt: "Tetovo Honey Awards 2020 - Livadski med",
   },
 ];
 
 export default function Awards() {
-  const [selectedAward, setSelectedAward] = useState<Award | null>(null);
-  const triggerRef = useRef<HTMLElement | null>(null);
-  const carouselWrapRef = useRef<HTMLDivElement>(null);
-  const touchStartX = useRef<number | null>(null);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [isMounted, setIsMounted] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<{
+    src: string;
+    alt: string;
+  } | null>(null);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const [translateX, setTranslateX] = useState(0);
 
-  /* Carousel state: selectedIndex (0..N-1) drives active slide; prev/next from modulo for loop. Modal (selectedAward, zoomOpen) unchanged. triggerRef = active slide when opening modal so focus returns on close. */
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [advanceProgress, setAdvanceProgress] = useState(0);
-  const advanceStartRef = useRef<number>(Date.now());
-  const N = awards.length;
-  const prevIndex = (selectedIndex - 1 + N) % N;
-  const nextIndex = (selectedIndex + 1) % N;
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + awards.length) % awards.length);
+  };
 
-  const goPrev = useCallback(() => {
-    setSelectedIndex((i) => (i - 1 + N) % N);
-  }, [N]);
-
-  const goNext = useCallback(() => {
-    setSelectedIndex((i) => (i + 1) % N);
-  }, [N]);
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % awards.length);
+  };
 
   useEffect(() => {
-    const handleCarouselKeyDown = (e: KeyboardEvent) => {
-      if (selectedAward != null) return;
-      const target = document.activeElement as Node | null;
-      if (!target || !carouselWrapRef.current?.contains(target)) return;
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        goPrev();
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        goNext();
-      }
+    const raf = requestAnimationFrame(() => setIsMounted(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  useEffect(() => {
+    const updateTrackPosition = () => {
+      if (!viewportRef.current) return;
+
+      const viewport = viewportRef.current;
+      const firstCard =
+        viewport.querySelector<HTMLElement>("[data-award-card]");
+      if (!firstCard) return;
+
+      const viewportWidth = viewport.offsetWidth;
+      const cardWidth = firstCard.offsetWidth;
+      const gap = 24;
+      const step = cardWidth + gap;
+      const desired = viewportWidth / 2 - (currentIndex * step + cardWidth / 2);
+      const maxTranslate = 0;
+      const minTranslate = viewportWidth - (awards.length * step - gap);
+      const clamped = Math.min(maxTranslate, Math.max(minTranslate, desired));
+      setTranslateX(clamped);
     };
-    document.addEventListener("keydown", handleCarouselKeyDown);
-    return () => document.removeEventListener("keydown", handleCarouselKeyDown);
-  }, [selectedAward, goPrev, goNext]);
 
-  useEffect(() => {
-    if (selectedAward != null) {
-      setAdvanceProgress(0);
-      return;
-    }
-    advanceStartRef.current = Date.now();
-    setAdvanceProgress(0);
-    const id = setInterval(() => {
-      const elapsed = Date.now() - advanceStartRef.current;
-      const p = Math.min(elapsed / AUTO_ADVANCE_MS, 1);
-      setAdvanceProgress(p);
-      if (p >= 1) {
-        goNext();
-        advanceStartRef.current = Date.now();
-        setAdvanceProgress(0);
-      }
-    }, 50);
-    return () => clearInterval(id);
-  }, [selectedAward, selectedIndex, goNext]);
+    updateTrackPosition();
+    window.addEventListener("resize", updateTrackPosition);
+    return () => window.removeEventListener("resize", updateTrackPosition);
+  }, [currentIndex]);
 
   return (
     <section
       id="nagrade"
-      className="border-t border-white/10 bg-[var(--background)] py-16 sm:py-20 lg:py-24"
-      aria-labelledby="awards-title"
+      className="border-t border-white/10 bg-[#0a0805] py-16 sm:py-20 lg:py-24"
     >
-      <RevealOnScroll>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2
-            id="awards-title"
-            className="mb-6 text-center text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-[3.5rem]"
-          >
-            Nagrade i kvalitet
-          </h2>
-          <div className="awards-heading-accent mb-12 sm:mb-16" aria-hidden />
-          <p className="awards-intro mx-auto mb-0 max-w-[800px] text-center text-base leading-[1.7] text-[#c0c0c0] sm:mb-20 sm:text-lg lg:text-xl">
-            Prepoznati smo po kvalitetu i tradiciji. Naši proizvodi nose
-            priznanja i diplome koje potvrđuju posvećenost prirodnom medu i
-            visokim standardima.
-          </p>
+      <div
+        className={`mx-auto w-full max-w-7xl px-4 transition-all duration-700 ease-out sm:px-6 lg:px-8 ${
+          isMounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+        }`}
+      >
+        <div className="flex flex-col gap-8 border-b border-[#c9920a]/15 pb-8 md:flex-row md:items-end md:justify-between">
+          <div className="flex items-end gap-5">
+            <div className="h-14 w-0.5 bg-[#c9920a]" aria-hidden />
+            <div className="space-y-2">
+              <p className="[font-family:var(--font-montserrat)] text-xs font-medium tracking-[0.28em] text-[#c9920a]/80">
+                KVALITET &amp; PREPOZNATLJIVOST
+              </p>
+              <h2 className="[font-family:var(--font-cormorant)] text-3xl text-[#f0e8d8] sm:text-4xl lg:text-5xl">
+                Nagrade &amp; <em className="italic text-[#c9920a]">Počasti</em>
+              </h2>
+            </div>
+          </div>
 
-          {/* Carousel: overflow visible, padding per spec; ref for focus return */}
+          <div className="flex items-center gap-5">
+            <p className="[font-family:var(--font-cormorant)] text-base text-[#f0e8d8] sm:text-lg">
+              {String(currentIndex + 1).padStart(2, "0")}{" "}
+              <span className="text-[#c9920a]/50">/</span>{" "}
+              <span className="text-[#c9920a]/70">
+                {String(awards.length).padStart(2, "0")}
+              </span>
+            </p>
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={handlePrev}
+                aria-label="Previous award"
+                className="flex h-11 w-11 items-center justify-center border border-[#c9920a]/30 bg-transparent text-[#f0e8d8] transition-all duration-300 ease-in-out hover:border-[#c9920a]/60 hover:bg-[#c9920a]/10"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                aria-label="Next award"
+                className="flex h-11 w-11 items-center justify-center border border-[#c9920a]/30 bg-transparent text-[#f0e8d8] transition-all duration-300 ease-in-out hover:border-[#c9920a]/60 hover:bg-[#c9920a]/10"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 h-[1px] w-full bg-[#c9920a]/10">
           <div
-            ref={carouselWrapRef}
-            className="awards-carousel relative mx-auto max-w-[1600px] overflow-visible px-10 pt-0 pb-8 sm:py-[100px]"
-          >
-            <button
-              type="button"
-              onClick={goPrev}
-              className="carousel-arrow carousel-arrow-left absolute top-1/2 z-10 flex -translate-y-1/2 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
-              aria-label="Prethodna nagrada"
-            >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
-            <button
-              type="button"
-              onClick={goNext}
-              className="carousel-arrow carousel-arrow-right absolute top-1/2 z-10 flex -translate-y-1/2 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
-              aria-label="Sledeća nagrada"
-            >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-
-            <div
-              className="carousel-track"
-              role="region"
-              aria-roledescription="carousel"
-              aria-label="Nagrade i priznanja"
-              onTouchStart={(e) => {
-                touchStartX.current = e.touches[0].clientX;
-              }}
-              onTouchEnd={(e) => {
-                const start = touchStartX.current;
-                touchStartX.current = null;
-                if (start == null) return;
-                const end = e.changedTouches[0].clientX;
-                const deltaX = start - end;
-                if (deltaX > SWIPE_THRESHOLD_PX) goNext();
-                else if (deltaX < -SWIPE_THRESHOLD_PX) goPrev();
-              }}
-            >
-              {awards.map((award, i) => {
-                const role =
-                  i === selectedIndex
-                    ? "active"
-                    : i === prevIndex
-                      ? "prev"
-                      : i === nextIndex
-                        ? "next"
-                        : "hidden";
-                const handleSlideClick = (e: React.MouseEvent) => {
-                  if (role === "active") {
-                    triggerRef.current = e.currentTarget as HTMLElement;
-                    setSelectedAward(award);
-                  } else if (role === "prev") goPrev();
-                  else if (role === "next") goNext();
-                };
-                const handleSlideKeyDown = (e: React.KeyboardEvent) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    if (role === "active") {
-                      triggerRef.current = e.currentTarget as HTMLElement;
-                      setSelectedAward(award);
-                    } else if (role === "prev") goPrev();
-                    else if (role === "next") goNext();
-                  }
-                };
-                return (
-                  <div
-                    key={award.src}
-                    className={`carousel-slide carousel-slide-${role}`}
-                    data-award-index={i}
-                    role="button"
-                    tabIndex={role === "hidden" ? -1 : 0}
-                    aria-label={
-                      role === "active"
-                        ? `Pogledaj detalje: ${award.name}`
-                        : role === "prev"
-                          ? "Prethodna nagrada"
-                          : role === "next"
-                            ? "Sledeća nagrada"
-                            : undefined
-                    }
-                    aria-hidden={role === "hidden"}
-                    aria-current={role === "active" ? "true" : undefined}
-                    onClick={handleSlideClick}
-                    onKeyDown={handleSlideKeyDown}
-                  >
-                    <AwardCard award={award} />
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Live region: announces "Nagrada X od Y" when selectedIndex changes; slides use aria-hidden (hidden) and aria-current (active) for context. */}
-            <div
-              aria-live="polite"
-              aria-atomic="true"
-              className="sr-only"
-              role="status"
-            >
-              Nagrada {selectedIndex + 1} od {awards.length}.
-            </div>
-
-            <div
-              className="carousel-pagination flex justify-center"
-              role="tablist"
-              aria-label="Nagrade - stranice"
-            >
-              <div
-                className="carousel-pagination-inner"
-                style={{ ["--carousel-active-index" as string]: selectedIndex }}
-              >
-                <div className="carousel-pagination-indicator" aria-hidden>
-                  <div
-                    className="carousel-pagination-indicator-fill"
-                    style={{ width: `${advanceProgress * 100}%` }}
-                  />
-                </div>
-                {awards.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setSelectedIndex(i)}
-                    className="flex min-h-[32px] min-w-[32px] items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
-                    role="tab"
-                    aria-label={`Nagrada ${i + 1}`}
-                    aria-selected={i === selectedIndex}
-                  >
-                    <span
-                      className={`carousel-dot ${i === selectedIndex ? "carousel-dot-active" : ""}`}
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {selectedAward && (
-          <AwardDetailsModal
-            award={selectedAward}
-            onClose={() => setSelectedAward(null)}
-            returnFocusRef={triggerRef}
+            className="h-full bg-[#c9920a] transition-all duration-300 ease-in-out"
+            style={{ width: `${((currentIndex + 1) / awards.length) * 100}%` }}
           />
-        )}
-      </RevealOnScroll>
-    </section>
-  );
-}
+        </div>
 
-type AwardCardProps = {
-  award: Award;
-};
+        <div ref={viewportRef} className="mt-10 overflow-hidden">
+          <div
+            className="flex gap-6 transition-all duration-300 ease-in-out"
+            style={{ transform: `translateX(${translateX}px)` }}
+          >
+            {awards.map((award, index) => {
+              const isActive = index === currentIndex;
 
-function AwardCard({ award }: AwardCardProps) {
-  return (
-    <div className="award-card">
-      <div className="award-card-inner">
-        <div className="award-image-container">
-          <div className="award-certificate">
-            <Image
-              src={award.image?.thumbnail ?? award.src}
-              alt={award.alt}
-              fill
-              className="object-contain object-center"
-              sizes="(max-width: 640px) 85vw, (max-width: 1024px) 50vw, 420px"
-            />
+              return (
+                <article
+                  key={award.id}
+                  data-award-card
+                  onClick={() => setCurrentIndex(index)}
+                  className={`group relative w-full shrink-0 cursor-pointer overflow-hidden border bg-[#080604] transition-all duration-300 ease-in-out sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] ${
+                    isActive
+                      ? "border-[#c9920a]/35"
+                      : "border-[#c9920a]/10 hover:border-[#c9920a]/20"
+                  }`}
+                >
+                  <div
+                    className={`absolute top-4 left-4 border-t border-l transition-all duration-300 ease-in-out ${
+                      isActive
+                        ? "h-[18px] w-[18px] border-[#c9920a]/90"
+                        : "h-[12px] w-[12px] border-[#c9920a]/35"
+                    }`}
+                    aria-hidden
+                  />
+                  <div
+                    className={`absolute right-4 bottom-4 border-r border-b transition-all duration-300 ease-in-out ${
+                      isActive
+                        ? "h-[18px] w-[18px] border-[#c9920a]/90"
+                        : "h-[12px] w-[12px] border-[#c9920a]/35"
+                    }`}
+                    aria-hidden
+                  />
+
+                  <div className="relative flex h-56 items-center justify-center border-b border-[#c9920a]/10">
+                    <Image
+                      src={award.imageSrc}
+                      alt={award.imageAlt}
+                      fill
+                      className="object-contain p-5"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLightboxImage({
+                          src: award.imageSrc,
+                          alt: award.imageAlt,
+                        });
+                      }}
+                      className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 overflow-hidden border border-[#c9920a]/40 bg-[#080604]/85 px-3.5 py-1.5 [font-family:var(--font-montserrat)] text-[0.55rem] font-medium uppercase tracking-[0.18em] text-[#c9920a] transition-[border-color] duration-300 ease-in-out before:absolute before:inset-0 before:bg-[linear-gradient(105deg,transparent_25%,rgba(201,146,10,0.1)_50%,transparent_75%)] before:translate-x-[-120%] before:transition-transform before:duration-500 before:ease-in-out hover:border-[#c9920a]/70 hover:before:translate-x-[120%] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9920a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080604]"
+                    >
+                      Pogledaj nagradu
+                    </button>
+                    {!isActive && (
+                      <div
+                        className="absolute inset-0 bg-[#080604]/50 transition-all duration-300 ease-in-out"
+                        aria-hidden
+                      />
+                    )}
+                  </div>
+
+                  <div className="p-6">
+                    <h3 className="[font-family:var(--font-cormorant)] text-xl text-[#f0e8d8]">
+                      {award.name}
+                    </h3>
+                    <div
+                      className={`mt-4 h-[1px] bg-[#c9920a]/30 transition-all duration-300 ease-in-out ${
+                        isActive ? "w-9" : "w-6"
+                      }`}
+                    />
+                    <div className="mt-4 grid grid-cols-3 gap-3 text-xs">
+                      <div>
+                        <p className="[font-family:var(--font-montserrat)] uppercase tracking-[0.18em] text-[#c9920a]/45">
+                          Godina
+                        </p>
+                        <p className="mt-1 [font-family:var(--font-cormorant)] text-sm text-[#f0e8d8]">
+                          {award.year}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="[font-family:var(--font-montserrat)] uppercase tracking-[0.18em] text-[#c9920a]/45">
+                          Lokacija
+                        </p>
+                        <p className="mt-1 [font-family:var(--font-cormorant)] text-sm text-[#f0e8d8]">
+                          {award.location}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="[font-family:var(--font-montserrat)] uppercase tracking-[0.18em] text-[#c9920a]/45">
+                          {award.id === 3 ? "Tip" : "Kategorija"}
+                        </p>
+                        <p className="mt-1 [font-family:var(--font-cormorant)] text-sm text-[#f0e8d8]">
+                          {award.id === 3
+                            ? "Laboratorijski izvestaj"
+                            : award.category}
+                        </p>
+                      </div>
+                    </div>
+                    <div
+                      className={`overflow-hidden [font-family:var(--font-montserrat)] text-sm leading-relaxed text-[#f0e8d8]/80 transition-all duration-300 ease-in-out ${
+                        isActive
+                          ? "mt-4 max-h-40 opacity-100"
+                          : "max-h-0 opacity-0"
+                      }`}
+                    >
+                      <p>{award.description}</p>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
-        <div className="award-title-container">
-          <p className="award-title">{award.name}</p>
+
+        <div className="mt-8 flex items-center justify-center gap-2">
+          {awards.map((award, index) => {
+            const isActive = index === currentIndex;
+
+            return (
+              <button
+                key={award.id}
+                type="button"
+                onClick={() => setCurrentIndex(index)}
+                aria-label={`Go to award ${index + 1}`}
+                className={`h-[1px] transition-all duration-300 ease-in-out ${
+                  isActive
+                    ? "w-10 bg-[#c9920a]"
+                    : "w-5 bg-[#c9920a]/20 hover:bg-[#c9920a]/40"
+                }`}
+              />
+            );
+          })}
         </div>
       </div>
-    </div>
+      {lightboxImage && (
+        <ImageLightbox
+          src={lightboxImage.src}
+          alt={lightboxImage.alt}
+          onClose={() => setLightboxImage(null)}
+        />
+      )}
+    </section>
   );
 }
