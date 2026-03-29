@@ -1,0 +1,43 @@
+# Phase 9 — supply-chain: npm audit + lockfile integrity on a schedule and on demand.
+# Alerting: enable repo Notifications → Actions → "Send notifications for failed workflows"
+# (or rely on GitHub Dependabot security alerts under Security → Dependabot).
+name: Dependency audit
+
+on:
+  schedule:
+    # Weekly Monday 06:00 UTC (~08:00 Belgrade winter)
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - package.json
+      - package-lock.json
+      - .github/workflows/dependency-audit.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies (npm ci)
+        run: npm ci
+
+      - name: npm audit (production tree)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: npm audit (full tree)
+        run: npm audit --audit-level=high

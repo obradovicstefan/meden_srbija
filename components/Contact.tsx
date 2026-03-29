@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { Mail, MapPin, Phone, Truck } from "lucide-react";
+import { PublicErrorCode } from "@/lib/public-error-codes";
 
 const PHONE_BOGDAN = "064 974 5589";
 const PHONE_BOGDAN_HREF = "tel:+381649745589";
@@ -10,6 +12,33 @@ const PHONE_BOJAN_HREF = "tel:+381621198196";
 const EMAIL = "office@medensrbija.com";
 const EMAIL_HREF = "mailto:office@medensrbija.com";
 const LOCATION = "Beograd, Srbija";
+
+/** Usklađeno sa app/api/send/route.ts */
+const MAX_FULL_NAME_LEN = 200;
+const MAX_MESSAGE_LEN = 5000;
+const MIN_MESSAGE_LEN = 10;
+const MAX_PHONE_LEN = 40;
+
+const TURNSTILE_SITE_KEY =
+  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() ?? "";
+
+/** Ujednačena poruka sa serverom za generičke greške slanja. */
+const GENERIC_SUBMIT_ERROR =
+  "Slanje poruke trenutno nije moguće. Pokušajte ponovo kasnije.";
+
+/** Back off only for overload / transport — not for client-fixable or trust failures. */
+function shouldApplySubmitBackoff(code: string | undefined): boolean {
+  if (code === PublicErrorCode.VALIDATION) return false;
+  if (code === PublicErrorCode.TURNSTILE_FAILED) return false;
+  if (code === PublicErrorCode.BAD_REQUEST) return false;
+  return true;
+}
+
+/** Eksponencijalno povećanje pauze između pokušaja (sekunde), max 120. */
+function backoffSecondsForStreak(streak: number): number {
+  if (streak <= 0) return 0;
+  return Math.min(120, 2 ** Math.min(6, streak));
+}
 
 const contactItems = [
   {
@@ -56,6 +85,7 @@ type FieldErrors = {
   surname?: string;
   email?: string;
   message?: string;
+  turnstile?: string;
 };
 
 function validateEmail(value: string): boolean {
@@ -63,11 +93,37 @@ function validateEmail(value: string): boolean {
 }
 
 export default function Contact() {
+  const turnstileRef = useRef<TurnstileInstance>(null);
+  /** Epoch ms when the form became ready (anti-automation: instant POSTs fail server-side). */
+  const formOpenedAtRef = useRef<number>(0);
+  /** Uzastopne greške slanja (ne računa validaciju / Turnstile). */
+  const submitFailureStreakRef = useRef(0);
+  /** Ne šalji ponovo pre ovog trenutka (eksponencijalni backoff + Retry-After). */
+  const submitCooldownUntilRef = useRef(0);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [status, setStatus] = useState<
     "idle" | "sending" | "success" | "error"
   >("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  const handleTurnstileSuccess = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setFieldErrors((prev) => ({ ...prev, turnstile: undefined }));
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken(null);
+  }, []);
+
+  const resetTurnstile = useCallback(() => {
+    setTurnstileToken(null);
+    turnstileRef.current?.reset();
+  }, []);
+
+  useEffect(() => {
+    formOpenedAtRef.current = Date.now();
+  }, []);
 
   function validateFields(
     name: string,
@@ -78,9 +134,19 @@ export default function Contact() {
     const err: FieldErrors = {};
     if (!name.trim()) err.name = "Unesite ime.";
     if (!surname.trim()) err.surname = "Unesite prezime.";
+    const fullName = `${name.trim()} ${surname.trim()}`.trim();
+    if (fullName.length > MAX_FULL_NAME_LEN) {
+      err.name = `Ime i prezime zajedno najviše ${MAX_FULL_NAME_LEN} karaktera.`;
+    }
     if (!email.trim()) err.email = "Unesite e-poštu.";
     else if (!validateEmail(email)) err.email = "Unesite ispravnu e-poštu.";
-    if (!message.trim()) err.message = "Unesite poruku.";
+    const msg = message.trim();
+    if (!msg) err.message = "Unesite poruku.";
+    else if (msg.length < MIN_MESSAGE_LEN) {
+      err.message = `Poruka mora imati najmanje ${MIN_MESSAGE_LEN} karaktera.`;
+    } else if (msg.length > MAX_MESSAGE_LEN) {
+      err.message = "Poruka je predugačka.";
+    }
     return err;
   }
 
@@ -98,41 +164,135 @@ export default function Contact() {
       "";
     const phone =
       (form.querySelector('[name="phone"]') as HTMLInputElement)?.value ?? "";
+    const honeypot =
+      (form.querySelector('[name="company_website"]') as HTMLInputElement)
+        ?.value ?? "";
     const name = `${nameValue.trim()} ${surname.trim()}`.trim();
 
     const errors = validateFields(nameValue, surname, email, message);
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      errors.turnstile = "Potvrdite sigurnosnu proveru ispod.";
+    }
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       return;
     }
+
+    const cooldownLeft = submitCooldownUntilRef.current - Date.now();
+    if (cooldownLeft > 0) {
+      const sec = Math.max(1, Math.ceil(cooldownLeft / 1000));
+      setStatus("error");
+      setErrorMessage(
+        `Sačekajte još ${sec} s pre ponovnog slanja (duže pauze pomažu ako se problem ponavlja).`,
+      );
+      return;
+    }
+
     setFieldErrors({});
     setStatus("sending");
     setErrorMessage("");
 
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch("/api/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, message }),
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          message,
+          companyWebsite: honeypot,
+          formOpenedAt: formOpenedAtRef.current,
+          ...(TURNSTILE_SITE_KEY && turnstileToken
+            ? { turnstileToken }
+            : {}),
+        }),
       });
-      const data = await res.json().catch(() => ({}));
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        code?: string;
+      };
 
       if (!res.ok) {
         setStatus("error");
-        setErrorMessage(
-          typeof data.error === "string"
-            ? data.error
-            : "Slanje poruke nije uspelo. Pokušajte ponovo.",
-        );
+        if (data.code === PublicErrorCode.TURNSTILE_FAILED) {
+          resetTurnstile();
+          setErrorMessage(
+            typeof data.error === "string"
+              ? data.error
+              : "Sigurnosna provera nije uspela. Pokušajte ponovo.",
+          );
+          return;
+        }
+        if (
+          res.status === 429 ||
+          data.code === PublicErrorCode.RATE_LIMIT
+        ) {
+          const base =
+            typeof data.error === "string"
+              ? data.error
+              : "Previše zahteva. Sačekajte pa pokušajte ponovo.";
+          const retryRaw = res.headers.get("Retry-After");
+          const sec = retryRaw ? parseInt(retryRaw, 10) : NaN;
+          let line = base;
+          if (!Number.isNaN(sec) && sec > 0) {
+            const mins = Math.max(1, Math.ceil(sec / 60));
+            line = `${base} Pokušajte ponovo za oko ${mins} min.`;
+          }
+          if (shouldApplySubmitBackoff(data.code)) {
+            submitFailureStreakRef.current += 1;
+            const exp = backoffSecondsForStreak(submitFailureStreakRef.current);
+            const waitSec =
+              Number.isFinite(sec) && sec > 0 ? Math.max(sec, exp) : exp;
+            submitCooldownUntilRef.current = Date.now() + waitSec * 1000;
+            line = `${line} Ako se ovo ponavlja, sačekajte duže između pokušaja (npr. ${waitSec} s pa još duže).`;
+          }
+          setErrorMessage(line);
+          return;
+        }
+
+        const serverGeneric =
+          data.code === PublicErrorCode.UPSTREAM_FAILED ||
+          data.code === PublicErrorCode.INTERNAL ||
+          data.code === PublicErrorCode.SERVICE_UNAVAILABLE;
+
+        let line: string;
+        if (serverGeneric) {
+          line = GENERIC_SUBMIT_ERROR;
+        } else if (typeof data.error === "string" && data.error.length > 0) {
+          line = data.error;
+        } else {
+          line = GENERIC_SUBMIT_ERROR;
+        }
+
+        if (shouldApplySubmitBackoff(data.code)) {
+          submitFailureStreakRef.current += 1;
+          const exp = backoffSecondsForStreak(submitFailureStreakRef.current);
+          const retryRaw = res.headers.get("Retry-After");
+          const srv = retryRaw ? parseInt(retryRaw, 10) : NaN;
+          const waitSec =
+            Number.isFinite(srv) && srv > 0 ? Math.max(srv, exp) : exp;
+          submitCooldownUntilRef.current = Date.now() + waitSec * 1000;
+          line = `${line} Pre sledećeg pokušaja sačekajte najmanje ${waitSec} s.`;
+        }
+
+        setErrorMessage(line);
         return;
       }
       setStatus("success");
       setFieldErrors({});
+      resetTurnstile();
+      submitFailureStreakRef.current = 0;
+      submitCooldownUntilRef.current = 0;
+      formOpenedAtRef.current = Date.now();
       form.reset();
     } catch {
       setStatus("error");
+      submitFailureStreakRef.current += 1;
+      const exp = backoffSecondsForStreak(submitFailureStreakRef.current);
+      submitCooldownUntilRef.current = Date.now() + exp * 1000;
       setErrorMessage(
-        "Slanje poruke nije uspelo. Proverite internet konekciju i pokušajte ponovo.",
+        `${GENERIC_SUBMIT_ERROR} Proverite konekciju. Pre sledećeg pokušaja sačekajte najmanje ${exp} s.`,
       );
     }
   }
@@ -273,6 +433,7 @@ export default function Contact() {
               className="relative border border-[#c9920a]/20 bg-[#110e09] p-8 md:p-12 motion-reduce:transform-none motion-reduce:opacity-100 motion-reduce:animate-none animate-[fadeInUp_900ms_cubic-bezier(0.22,1,0.36,1)_both] [animation-delay:300ms]"
               noValidate
               aria-label="Kontakt forma"
+              aria-busy={status === "sending"}
               onSubmit={handleSubmit}
             >
               <span
@@ -285,6 +446,23 @@ export default function Contact() {
               />
 
               <div className="relative z-10 space-y-5">
+                {/* Honeypot: hidden from users; bots often fill URL/company fields. */}
+                <div
+                  className="pointer-events-none absolute -left-[10000px] top-0 h-0 w-0 overflow-hidden opacity-0"
+                  aria-hidden="true"
+                >
+                  <label htmlFor="contact-company-website">
+                    Company website
+                  </label>
+                  <input
+                    type="text"
+                    id="contact-company-website"
+                    name="company_website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
                 <header className="space-y-3 pb-2">
                   <p className="font-sans text-[10px] uppercase tracking-[0.34em] text-[#c9920a]">
                     POŠALJITE PORUKU
@@ -310,6 +488,7 @@ export default function Contact() {
                       type="text"
                       name="name"
                       autoComplete="given-name"
+                      maxLength={MAX_FULL_NAME_LEN}
                       placeholder="Ime"
                       className={`w-full border bg-[#c9920a]/[0.03] px-4 py-3 font-sans text-sm text-[#f0e8d8] placeholder:font-serif placeholder:italic placeholder:text-[#f0e8d8]/50 focus:border-[#c9920a]/40 focus:bg-[#c9920a]/[0.05] focus:outline-none focus:ring-2 focus:ring-[#c9920a]/20 ${
                         fieldErrors.name
@@ -349,6 +528,7 @@ export default function Contact() {
                       type="text"
                       name="surname"
                       autoComplete="family-name"
+                      maxLength={MAX_FULL_NAME_LEN}
                       placeholder="Prezime"
                       className={`w-full border bg-[#c9920a]/[0.03] px-4 py-3 font-sans text-sm text-[#f0e8d8] placeholder:font-serif placeholder:italic placeholder:text-[#f0e8d8]/50 focus:border-[#c9920a]/40 focus:bg-[#c9920a]/[0.05] focus:outline-none focus:ring-2 focus:ring-[#c9920a]/20 ${
                         fieldErrors.surname
@@ -433,6 +613,7 @@ export default function Contact() {
                     type="tel"
                     name="phone"
                     autoComplete="tel"
+                    maxLength={MAX_PHONE_LEN}
                     placeholder="06x xxx xxxx"
                     className="w-full border border-[#c9920a]/20 bg-[#c9920a]/[0.03] px-4 py-3 font-sans text-sm text-[#f0e8d8] placeholder:font-serif placeholder:italic placeholder:text-[#f0e8d8]/50 focus:border-[#c9920a]/40 focus:bg-[#c9920a]/[0.05] focus:outline-none focus:ring-2 focus:ring-[#c9920a]/20"
                   />
@@ -449,6 +630,8 @@ export default function Contact() {
                     id="contact-message"
                     name="message"
                     rows={5}
+                    minLength={MIN_MESSAGE_LEN}
+                    maxLength={MAX_MESSAGE_LEN}
                     placeholder="Vaša poruka..."
                     className={`w-full resize-none border bg-[#c9920a]/[0.03] px-4 py-3 font-sans text-sm text-[#f0e8d8] placeholder:font-serif placeholder:italic placeholder:text-[#f0e8d8]/50 focus:border-[#c9920a]/40 focus:bg-[#c9920a]/[0.05] focus:outline-none focus:ring-2 focus:ring-[#c9920a]/20 ${
                       fieldErrors.message
@@ -478,22 +661,61 @@ export default function Contact() {
                     </span>
                   )}
                 </div>
-                {status === "success" && (
-                  <p
-                    className="border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 font-sans text-sm text-emerald-200"
-                    role="status"
-                  >
-                    Poruka je uspešno poslata. Javićemo vam se uskoro.
-                  </p>
-                )}
-                {status === "error" && errorMessage && (
-                  <p
-                    className="border border-red-400/30 bg-red-500/10 px-4 py-3 font-sans text-sm text-red-200"
-                    role="alert"
-                  >
-                    {errorMessage}
-                  </p>
-                )}
+                {TURNSTILE_SITE_KEY ? (
+                  <div className="space-y-2">
+                    <p className="font-sans text-xs text-[#f0e8d8]/70">
+                      Sigurnosna provera
+                    </p>
+                    <div
+                      className={`flex min-h-[65px] items-center justify-center rounded border bg-[#c9920a]/[0.03] px-2 py-3 ${
+                        fieldErrors.turnstile
+                          ? "border-red-400/60"
+                          : "border-[#c9920a]/20"
+                      }`}
+                    >
+                      <Turnstile
+                        ref={turnstileRef}
+                        siteKey={TURNSTILE_SITE_KEY}
+                        onSuccess={handleTurnstileSuccess}
+                        onExpire={handleTurnstileExpire}
+                        onError={() => {
+                          setTurnstileToken(null);
+                        }}
+                        options={{
+                          theme: "dark",
+                          language: "sr",
+                        }}
+                      />
+                    </div>
+                    {fieldErrors.turnstile ? (
+                      <span
+                        className="font-sans text-xs text-red-300"
+                        role="alert"
+                      >
+                        {fieldErrors.turnstile}
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                <div aria-live="polite" className="space-y-3">
+                  {status === "success" && (
+                    <p
+                      className="border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 font-sans text-sm text-emerald-200"
+                      role="status"
+                    >
+                      Poruka je uspešno poslata. Javićemo vam se uskoro.
+                    </p>
+                  )}
+                  {status === "error" && errorMessage && (
+                    <p
+                      className="border border-red-400/30 bg-red-500/10 px-4 py-3 font-sans text-sm text-red-200"
+                      role="alert"
+                    >
+                      {errorMessage}
+                    </p>
+                  )}
+                </div>
                 <button
                   type="submit"
                   disabled={status === "sending"}

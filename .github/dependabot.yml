@@ -1,0 +1,24 @@
+# Weekly lockfile updates + security patches (next, resend, runtime, dev).
+# See: https://docs.github.com/en/code-security/dependabot
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: Europe/Belgrade
+    open-pull-requests-limit: 15
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "deps"
+    # Pin-aware bumps: respect exact versions in package.json; still opens PRs when newer versions exist.
+    versioning-strategy: increase
+    groups:
+      dev-minor-patch:
+        dependency-type: development
+        update-types:
+          - patch
+          - minor

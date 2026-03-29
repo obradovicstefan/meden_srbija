@@ -158,7 +158,7 @@ export default function ProductCard({
             aria-expanded={expanded}
             aria-controls={expandId}
             id={`product-${product.id}`}
-            className="mb-2 flex w-full items-center justify-between gap-2 text-left text-xl font-bold text-white hover:text-[#D4AF37] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d0d] sm:text-[22px]"
+            className="product-name mb-2 flex w-full items-center justify-between gap-2 text-left text-white hover:text-[#D4AF37] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d0d]"
           >
             <span>{product.name}</span>
             <span
@@ -175,9 +175,11 @@ export default function ProductCard({
             {product.name}
           </h3>
         )}
-        <p className="product-short-description line-clamp-3">
-          {product.description}
-        </p>
+        {!hasLongDescription && product.description ? (
+          <p className="product-short-description line-clamp-3">
+            {product.description}
+          </p>
+        ) : null}
         <p className="product-price">
           {product.weightVariants}
         </p>

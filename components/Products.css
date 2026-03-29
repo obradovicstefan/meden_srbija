@@ -883,6 +883,12 @@
   margin-bottom: 6px;
 }
 
+/* Mobile title is a <button>; UA styles can override font-family (e.g. iOS Safari). */
+#proizvodi .product-card button.product-name {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+}
+
 #proizvodi .product-short-description {
   font-family: "Montserrat", sans-serif;
   font-size: 0.72rem;

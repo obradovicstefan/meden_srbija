@@ -207,7 +207,7 @@ export default function Products() {
     sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const handleCardEnter = (product: Product, _rect: DOMRect) => {
+  const handleCardEnter = (product: Product) => {
     if (isMobile) return;
 
     if (leaveTimeoutRef.current) {
