@@ -31,7 +31,7 @@ import { verifyTurnstileToken } from "@/lib/turnstile-verify";
 export const runtime = "nodejs";
 
 const MAX_NAME_LEN = 200;
-const MAX_MESSAGE_LEN = 5000;
+const MAX_MESSAGE_LEN = 2000;
 const MAX_PHONE_LEN = 40;
 const MAX_EMAIL_LEN = 254;
 const MIN_MESSAGE_LEN = 10;

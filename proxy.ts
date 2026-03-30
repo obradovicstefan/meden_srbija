@@ -15,7 +15,7 @@ function buildContentSecurityPolicy(request: NextRequest): string {
     "default-src 'self'",
     // Next.js may emit inline scripts; Turnstile loads from Cloudflare.
     // 'unsafe-eval' keeps some dev/prod Next runtimes working; remove if reports stay clean.
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
+    `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://challenges.cloudflare.com`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data:",
     "font-src 'self' data:",
