@@ -145,15 +145,6 @@ const products: Product[] = [
     longDescription:
       "Narandža i cimet\n\nWintera je više od ukusa - to je doživljaj. Topla nota cimeta i voćna dubina narandže stapaju se sa prirodnim medom u harmoniju koja budi sećanja na porodične večeri, mirise praznika i sigurnost doma.\n\nOdlično se uklapa uz tople napitke, kaše, palačinke ili kao dodatak u zimskim slatkišima.\n\nIza svakog zalogaja krije se pun spektar benefita koje pruža čisti med - jer čak i u ovoj bogatoj kombinaciji, Aromel Wintera zadržava svoje hranljive i lekovite osobine.\n\nZa zimu koja ne hladi, već greje - iznutra.",
   },
-  {
-    id: "rakija",
-    name: "Medna rakija",
-    description: "Tradicionalna rakija sa dodatkom prirodnog meda.",
-    image: "/images/products/Rakija.webp",
-    weightVariants: "4.800 RSD / 700 ml",
-    longDescription:
-      "Zlato koje vlada\n\nOva rakija se rađa polako, ali snažno kao i priroda.\n\nTri godine odmara u mraku, sazreva i pretvara prirodnu snagu u tečnost neuporedive moći. Stvorena od meda, našeg najčistijeg, i oplemenjena lekovitim biljem.\n\nPosebno odabrano lekovito bilje, tako da svaka biljka ima svoju svrhu. Svaka kap nosi potpis zemlje, vetra i vatre.\n\nOna ne grize. Ona vlada. Mirisna kao planinsko jutro, teška kao reč predaka.\n\nPo porodičnoj recepturi, sačuvanoj i usavršavanoj generacijama, nastaje rakija koja se ne pije već poštuje.\n\nZa one koji znaju da prepoznaju suštinu. Za one koji biraju moć, a ne buku.\n\nOvo nije piće. Ovo je istorija pretočena u zlato.",
-  },
 ];
 
 function useIsMobile() {
