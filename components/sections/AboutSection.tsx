@@ -113,7 +113,7 @@ export default function AboutSection() {
                     SS
                   </span>
                   <Image
-                    src="/images/aboutus/stojan.webp"
+                    src="/images/aboutus/Osnivac_tradicije.webp"
                     alt="Stojan Stanković"
                     width={136}
                     height={136}
@@ -133,7 +133,7 @@ export default function AboutSection() {
 
               <p className="aboutV4FamilyRole aboutV4FamilyRoleSide">Osnivač tradicije</p>
               <h4 className="aboutV4FamilyName aboutV4FamilyNameSide">Stojan Stanković</h4>
-              <p className="aboutV4FamilyEra">Medveđa · Leskovac</p>
+              <p className="aboutV4FamilyEra">Medveđa</p>
             </article>
 
             <div className="aboutV4FamilySeparator" aria-hidden />
@@ -147,7 +147,7 @@ export default function AboutSection() {
                     BS
                   </span>
                   <Image
-                    src="/images/aboutus/osnivac.webp"
+                    src="/images/aboutus/Osnivac_gazdinstva.webp"
                     alt="Bojan Stanković"
                     width={176}
                     height={176}

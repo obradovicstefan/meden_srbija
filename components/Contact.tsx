@@ -58,7 +58,7 @@ const contactItems = [
         </a>
       </>
     ),
-    subtext: "Bogdan & Bojan · Pon–Sub 08–20h",
+    subtext: "Bogdan & Bojan · Pon–Pet 08–20h",
     icon: Phone,
   },
   {

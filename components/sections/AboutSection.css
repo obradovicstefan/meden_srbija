@@ -182,7 +182,7 @@
 .aboutV4FamilyGeneration {
   font-family: var(--font-montserrat), "Montserrat", sans-serif;
   font-size: 9px;
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: rgba(201, 146, 10, 0.35);
@@ -299,9 +299,10 @@
 
 .aboutV4FamilyEra {
   font-family: var(--font-montserrat), "Montserrat", sans-serif;
-  font-size: 10px;
-  font-weight: 300;
-  letter-spacing: 0.1em;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   color: #3e3a34;
   text-align: center;
   margin: 0;
@@ -912,9 +913,9 @@
   border: 1px solid rgba(201, 146, 10, 0.3);
   padding: 7px 14px;
   font-family: var(--font-montserrat), "Montserrat", sans-serif;
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 0.12em;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #c8901a;
   border-radius: 0;
