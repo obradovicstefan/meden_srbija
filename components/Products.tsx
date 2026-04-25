@@ -309,7 +309,7 @@ export default function Products() {
 
                 <div className="my-5 h-[3px] w-20 bg-[#c9920a]" aria-hidden />
 
-                <a href="#kontakt" className="btn-primary">
+                <a href="/product/meden" className="btn-primary">
                   Saznaj više
                 </a>
               </div>

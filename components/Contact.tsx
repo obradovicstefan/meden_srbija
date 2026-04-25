@@ -94,30 +94,35 @@ function validateEmail(value: string): boolean {
 
 export default function Contact() {
   const turnstileRef = useRef<TurnstileInstance>(null);
+  const turnstileTokenRef = useRef<string | null>(null);
   /** Epoch ms when the form became ready (anti-automation: instant POSTs fail server-side). */
   const formOpenedAtRef = useRef<number>(0);
   /** Uzastopne greške slanja (ne računa validaciju / Turnstile). */
   const submitFailureStreakRef = useRef(0);
   /** Ne šalji ponovo pre ovog trenutka (eksponencijalni backoff + Retry-After). */
   const submitCooldownUntilRef = useRef(0);
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [status, setStatus] = useState<
     "idle" | "sending" | "success" | "error"
   >("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
-  const handleTurnstileSuccess = useCallback((token: string) => {
-    setTurnstileToken(token);
-    setFieldErrors((prev) => ({ ...prev, turnstile: undefined }));
-  }, []);
+  const handleTurnstileSuccess = useCallback(
+    (token: string) => {
+      if (status === "sending") return;
+      turnstileTokenRef.current = token;
+      setFieldErrors((prev) => ({ ...prev, turnstile: undefined }));
+    },
+    [status],
+  );
 
   const handleTurnstileExpire = useCallback(() => {
-    setTurnstileToken(null);
-  }, []);
+    if (status === "sending") return;
+    turnstileTokenRef.current = null;
+  }, [status]);
 
   const resetTurnstile = useCallback(() => {
-    setTurnstileToken(null);
+    turnstileTokenRef.current = null;
     turnstileRef.current?.reset();
   }, []);
 
@@ -152,25 +157,20 @@ export default function Contact() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (status === "sending") return;
     const form = e.currentTarget;
-    const nameValue =
-      (form.querySelector('[name="name"]') as HTMLInputElement)?.value ?? "";
-    const surname =
-      (form.querySelector('[name="surname"]') as HTMLInputElement)?.value ?? "";
-    const email =
-      (form.querySelector('[name="email"]') as HTMLInputElement)?.value ?? "";
-    const message =
-      (form.querySelector('[name="message"]') as HTMLTextAreaElement)?.value ??
-      "";
-    const phone =
-      (form.querySelector('[name="phone"]') as HTMLInputElement)?.value ?? "";
-    const honeypot =
-      (form.querySelector('[name="company_website"]') as HTMLInputElement)
-        ?.value ?? "";
+    const formData = new FormData(form);
+    const nameValue = String(formData.get("name") ?? "");
+    const surname = String(formData.get("surname") ?? "");
+    const email = String(formData.get("email") ?? "");
+    const message = String(formData.get("message") ?? "");
+    const phone = String(formData.get("phone") ?? "");
+    const honeypot = String(formData.get("company_website") ?? "");
     const name = `${nameValue.trim()} ${surname.trim()}`.trim();
+    const tokenSnapshot = turnstileTokenRef.current;
 
     const errors = validateFields(nameValue, surname, email, message);
-    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+    if (TURNSTILE_SITE_KEY && !tokenSnapshot) {
       errors.turnstile = "Potvrdite sigurnosnu proveru ispod.";
     }
     if (Object.keys(errors).length > 0) {
@@ -203,8 +203,8 @@ export default function Contact() {
           message,
           companyWebsite: honeypot,
           formOpenedAt: formOpenedAtRef.current,
-          ...(TURNSTILE_SITE_KEY && turnstileToken
-            ? { turnstileToken }
+          ...(TURNSTILE_SITE_KEY && tokenSnapshot
+            ? { turnstileToken: tokenSnapshot }
             : {}),
         }),
       });
@@ -679,7 +679,8 @@ export default function Contact() {
                         onSuccess={handleTurnstileSuccess}
                         onExpire={handleTurnstileExpire}
                         onError={() => {
-                          setTurnstileToken(null);
+                          if (status === "sending") return;
+                          turnstileTokenRef.current = null;
                         }}
                         options={{
                           theme: "dark",
