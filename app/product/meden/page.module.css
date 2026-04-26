@@ -731,17 +731,9 @@
   }
 }
 
-@media (max-width: 767px) {
-  .pageRoot {
-    /* Reserve visual space for floating bottom-left UI (e.g. "N" bubble). */
-    padding-bottom: clamp(28px, 6vw, 44px);
-  }
-
+@media (max-width: 640px) {
   .nav {
     padding: 20px 24px;
-    background: rgba(10, 8, 5, 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
   }
 
   .navRight {
@@ -749,13 +741,7 @@
   }
 
   .heroTextPanel {
-    /* Push headline below fixed nav on small screens. */
-    padding: clamp(84px, 12vw, 112px) clamp(24px, 5vw, 32px) clamp(68px, 10vw, 96px);
-  }
-
-  /* Ensure gold divider stays removed on mobile too. */
-  .divider {
-    display: none;
+    padding: 84px 24px 68px;
   }
 
   .specsRow {
@@ -786,12 +772,7 @@
   .processSection,
   .detailsSection,
   .footerCta {
-    /* Stronger chapter separation + safer left gutter near floating "N" button. */
-    padding: 60px clamp(28px, 6vw, 40px);
-  }
-
-  .storySection {
-    padding-top: clamp(104px, 16vw, 152px);
+    padding: 60px 24px;
   }
 
   .footerMini {
