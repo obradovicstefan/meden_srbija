@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Cormorant_Garamond, Inter, Montserrat } from "next/font/google";
-import FooterSlot from "@/components/FooterSlot";
 import "./globals.css";
 
 const inter = Inter({
@@ -39,8 +38,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${cormorant.variable} ${montserrat.variable} flex min-h-screen flex-col font-sans antialiased`}
       >
-        <div className="flex-1">{children}</div>
-        <FooterSlot />
+        {children}
         <Analytics />
         <SpeedInsights />
       </body>
