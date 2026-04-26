@@ -875,12 +875,18 @@ body {
 }
 
 .reveal-on-scroll {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+.js-reveal-ready .reveal-on-scroll:not(.is-visible) {
   opacity: 0;
   transform: translateY(56px);
   will-change: opacity, transform;
 }
 
-.reveal-on-scroll.is-visible {
+.js-reveal-ready .reveal-on-scroll.is-visible {
   animation: revealFadeUp 1.25s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
 }
 
@@ -911,20 +917,38 @@ body {
 .reveal-products-heading,
 .reveal-products-featured,
 .reveal-products-grid {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+.js-reveal-ready
+  .reveal-on-scroll.reveal-products:not(.is-visible)
+  .reveal-products-heading,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-products:not(.is-visible)
+  .reveal-products-featured,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-products:not(.is-visible)
+  .reveal-products-grid {
   opacity: 0;
   transform: translateY(40px);
   will-change: opacity, transform;
 }
 
-.reveal-on-scroll.reveal-products.is-visible .reveal-products-heading {
+.js-reveal-ready
+  .reveal-on-scroll.reveal-products.is-visible
+  .reveal-products-heading {
   animation: revealFadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
 }
 
-.reveal-on-scroll.reveal-products.is-visible .reveal-products-featured {
+.js-reveal-ready
+  .reveal-on-scroll.reveal-products.is-visible
+  .reveal-products-featured {
   animation: revealFadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
 }
 
-.reveal-on-scroll.reveal-products.is-visible .reveal-products-grid {
+.js-reveal-ready .reveal-on-scroll.reveal-products.is-visible .reveal-products-grid {
   animation: revealFadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards;
 }
 
@@ -977,22 +1001,34 @@ body {
 }
 
 .reveal-about-image {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+.reveal-about-text {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+.js-reveal-ready .reveal-on-scroll.reveal-about:not(.is-visible) .reveal-about-image {
   opacity: 0;
   transform: translateX(56px);
   will-change: opacity, transform;
 }
 
-.reveal-about-text {
+.js-reveal-ready .reveal-on-scroll.reveal-about:not(.is-visible) .reveal-about-text {
   opacity: 0;
   transform: translateY(40px);
   will-change: opacity, transform;
 }
 
-.reveal-on-scroll.reveal-about.is-visible .reveal-about-image {
+.js-reveal-ready .reveal-on-scroll.reveal-about.is-visible .reveal-about-image {
   animation: aboutSlideRight 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.reveal-on-scroll.reveal-about.is-visible .reveal-about-text {
+.js-reveal-ready .reveal-on-scroll.reveal-about.is-visible .reveal-about-text {
   animation: aboutFadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
 }
 
@@ -1023,32 +1059,54 @@ body {
 }
 
 .reveal-on-scroll.reveal-timeline {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+.js-reveal-ready .reveal-on-scroll.reveal-timeline:not(.is-visible) {
   opacity: 0;
   transform: translateY(48px);
   will-change: opacity, transform;
 }
 
-.reveal-on-scroll.reveal-timeline.is-visible {
+.js-reveal-ready .reveal-on-scroll.reveal-timeline.is-visible {
   animation: timelineFadeUp 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .reveal-timeline-title,
 .reveal-timeline-avatars,
 .reveal-timeline-text {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+.js-reveal-ready
+  .reveal-on-scroll.reveal-timeline:not(.is-visible)
+  .reveal-timeline-title,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-timeline:not(.is-visible)
+  .reveal-timeline-avatars,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-timeline:not(.is-visible)
+  .reveal-timeline-text {
   opacity: 0;
   transform: translateY(32px);
   will-change: opacity, transform;
 }
 
-.reveal-on-scroll.reveal-timeline.is-visible .reveal-timeline-title {
+.js-reveal-ready .reveal-on-scroll.reveal-timeline.is-visible .reveal-timeline-title {
   animation: timelineFadeUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
 }
 
-.reveal-on-scroll.reveal-timeline.is-visible .reveal-timeline-avatars {
+.js-reveal-ready
+  .reveal-on-scroll.reveal-timeline.is-visible
+  .reveal-timeline-avatars {
   animation: timelineFadeUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
 }
 
-.reveal-on-scroll.reveal-timeline.is-visible .reveal-timeline-text {
+.js-reveal-ready .reveal-on-scroll.reveal-timeline.is-visible .reveal-timeline-text {
   animation: timelineFadeUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.75s forwards;
 }
 
@@ -1076,22 +1134,34 @@ body {
 }
 
 .reveal-team-left {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+.reveal-team-right {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+.js-reveal-ready .reveal-on-scroll.reveal-timeline:not(.is-visible) .reveal-team-left {
   opacity: 0;
   transform: translateX(-40px);
   will-change: opacity, transform;
 }
 
-.reveal-team-right {
+.js-reveal-ready .reveal-on-scroll.reveal-timeline:not(.is-visible) .reveal-team-right {
   opacity: 0;
   transform: translateX(40px);
   will-change: opacity, transform;
 }
 
-.reveal-on-scroll.reveal-timeline.is-visible .reveal-team-left {
+.js-reveal-ready .reveal-on-scroll.reveal-timeline.is-visible .reveal-team-left {
   animation: teamSlideInLeft 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards;
 }
 
-.reveal-on-scroll.reveal-timeline.is-visible .reveal-team-right {
+.js-reveal-ready .reveal-on-scroll.reveal-timeline.is-visible .reveal-team-right {
   animation: teamSlideInRight 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.7s forwards;
 }
 

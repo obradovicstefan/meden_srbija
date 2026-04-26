@@ -577,11 +577,11 @@
 .reveal-about-team .aboutV4TeamEyebrow,
 .reveal-about-team .aboutV4TeamTitle,
 .reveal-about-team .aboutV4TeamCard {
-  opacity: 0;
+  opacity: 1;
   transition:
     opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
+  will-change: auto;
 }
 
 .reveal-about-team .aboutV4DiamondDivider {
@@ -590,20 +590,59 @@
 
 .reveal-about-team .aboutV4TeamEyebrow,
 .reveal-about-team .aboutV4TeamTitle {
-  transform: translateY(20px);
+  transform: none;
 }
 
 .reveal-about-team .aboutV4TeamBar {
-  opacity: 0;
-  transform: scaleX(0);
+  opacity: 1;
+  transform: none;
   transform-origin: left;
   transition:
     opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
+  will-change: auto;
 }
 
 .reveal-about-team .aboutV4TeamCard {
+  transform: none;
+}
+
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-team:not(.is-visible)
+  .aboutV4DiamondDivider,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-team:not(.is-visible)
+  .aboutV4TeamEyebrow,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-team:not(.is-visible)
+  .aboutV4TeamTitle,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-team:not(.is-visible)
+  .aboutV4TeamCard {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-team:not(.is-visible)
+  .aboutV4TeamEyebrow,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-team:not(.is-visible)
+  .aboutV4TeamTitle {
+  transform: translateY(20px);
+}
+
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-team:not(.is-visible)
+  .aboutV4TeamBar {
+  opacity: 0;
+  transform: scaleX(0);
+  will-change: opacity, transform;
+}
+
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-team:not(.is-visible)
+  .aboutV4TeamCard {
   transform: translateY(30px);
 }
 
@@ -674,31 +713,31 @@
 .reveal-about-family .aboutV4FamilyStoryLabelRow,
 .reveal-about-family .aboutV4FamilyStoryBody,
 .reveal-about-family .aboutV4FamilyStoryUnderline .aboutV4DiamondDivider {
-  opacity: 0;
+  opacity: 1;
   transition:
     opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
+  will-change: auto;
 }
 
 .reveal-about-family .aboutV4FamilyEyebrow,
 .reveal-about-family .aboutV4FamilyEyebrowMuted,
 .reveal-about-family .aboutV4FamilyTitle {
-  transform: translateY(20px);
+  transform: none;
 }
 
 .reveal-about-family .aboutV4FamilyBar {
-  opacity: 0;
-  transform: scaleX(0);
+  opacity: 1;
+  transform: none;
   transform-origin: center center;
   transition:
     opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
+  will-change: auto;
 }
 
 .reveal-about-family .aboutV4FamilyPortraits article {
-  transform: translateY(24px);
+  transform: none;
 }
 
 .reveal-about-family .aboutV4FamilySeparator {
@@ -710,11 +749,74 @@
 }
 
 .reveal-about-family .aboutV4FamilyStoryBody {
-  transform: translateY(16px);
+  transform: none;
 }
 
 .reveal-about-family .aboutV4FamilyStoryUnderline .aboutV4DiamondDivider {
   transform: none;
+}
+
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyEyebrow,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyEyebrowMuted,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyTitle,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyPortraits
+  article,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilySeparator,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyStoryLabelRow,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyStoryBody,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyStoryUnderline
+  .aboutV4DiamondDivider {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyEyebrow,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyEyebrowMuted,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyTitle {
+  transform: translateY(20px);
+}
+
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyBar {
+  opacity: 0;
+  transform: scaleX(0);
+  will-change: opacity, transform;
+}
+
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyPortraits
+  article {
+  transform: translateY(24px);
+}
+
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-family:not(.is-visible)
+  .aboutV4FamilyStoryBody {
+  transform: translateY(16px);
 }
 
 .reveal-on-scroll.reveal-about-family.is-visible .aboutV4FamilyEyebrow {
@@ -964,20 +1066,52 @@
 .reveal-about-v4 .aboutV4Divider,
 .reveal-about-v4 .aboutV4Stats,
 .reveal-about-v4 .aboutV4Button {
-  opacity: 0;
-  transform: translateY(20px);
+  opacity: 1;
+  transform: none;
   transition:
     opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
+  will-change: auto;
 }
 
 .reveal-about-v4 .aboutV4Right {
-  opacity: 0;
-  transform: translateX(40px);
+  opacity: 1;
+  transform: none;
   transition:
     opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: auto;
+}
+
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-v4:not(.is-visible)
+  .aboutV4Eyebrow,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-v4:not(.is-visible)
+  .aboutV4Title,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-v4:not(.is-visible)
+  .aboutV4Underline,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-v4:not(.is-visible)
+  .aboutV4Paragraph,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-v4:not(.is-visible)
+  .aboutV4Divider,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-v4:not(.is-visible)
+  .aboutV4Stats,
+.js-reveal-ready
+  .reveal-on-scroll.reveal-about-v4:not(.is-visible)
+  .aboutV4Button {
+  opacity: 0;
+  transform: translateY(20px);
+  will-change: opacity, transform;
+}
+
+.js-reveal-ready .reveal-on-scroll.reveal-about-v4:not(.is-visible) .aboutV4Right {
+  opacity: 0;
+  transform: translateX(40px);
   will-change: opacity, transform;
 }
 
@@ -1198,7 +1332,9 @@
 }
 
 @media (max-width: 639px) {
-  .reveal-about-v4 .aboutV4Right {
+  .js-reveal-ready
+    .reveal-on-scroll.reveal-about-v4:not(.is-visible)
+    .aboutV4Right {
     transform: translateY(16px);
   }
 

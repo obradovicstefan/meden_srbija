@@ -11,6 +11,8 @@ type RevealOnScrollProps = {
   className?: string;
 };
 
+let readyClassApplied = false;
+
 export default function RevealOnScroll({
   children,
   rootMargin = "0px 0px -80px 0px",
@@ -21,6 +23,11 @@ export default function RevealOnScroll({
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    if (!readyClassApplied) {
+      document.documentElement.classList.add("js-reveal-ready");
+      readyClassApplied = true;
+    }
+
     const el = ref.current;
     if (!el) return;
 

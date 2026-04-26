@@ -133,6 +133,7 @@ const awards: AwardItem[] = [
 export default function Awards() {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isMounted, setIsMounted] = useState(false);
+  const [jsRevealReady, setJsRevealReady] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<{
     src: string;
     alt: string;
@@ -149,6 +150,10 @@ export default function Awards() {
   };
 
   useEffect(() => {
+    setJsRevealReady(
+      document.documentElement.classList.contains("js-reveal-ready")
+    );
+
     const raf = requestAnimationFrame(() => setIsMounted(true));
     return () => cancelAnimationFrame(raf);
   }, []);
@@ -185,7 +190,9 @@ export default function Awards() {
     >
       <div
         className={`mx-auto w-full max-w-7xl px-4 transition-all duration-700 ease-out sm:px-6 lg:px-8 ${
-          isMounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+          jsRevealReady && !isMounted
+            ? "translate-y-8 opacity-0"
+            : "translate-y-0 opacity-100"
         }`}
       >
         <div className="flex flex-col gap-8 border-b border-[#c9920a]/15 pb-8 md:flex-row md:items-end md:justify-between">
