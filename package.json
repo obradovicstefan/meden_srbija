@@ -15,7 +15,7 @@
     "audit:ci": "npm audit --audit-level=high && npm audit --omit=dev --audit-level=high"
   },
   "dependencies": {
-    "@marsidev/react-turnstile": "1.5.0",
+    "@marsidev/react-turnstile": "1.5.1",
     "@upstash/ratelimit": "2.0.8",
     "@upstash/redis": "1.37.0",
     "@vercel/analytics": "^2.0.1",
