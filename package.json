@@ -25,7 +25,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-zoom-pan-pinch": "3.7.0",
-    "resend": "6.9.4"
+    "resend": "6.12.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
